@@ -5,12 +5,30 @@ A 3D arcade street racer that runs entirely from a single `index.html`.
 ## Play
 
 Double-click `index.html` (or open it in Chrome, Edge, Firefox or Safari). An internet
-connection is needed the first time so the browser can fetch three.js from the jsDelivr CDN.
+connection is needed so the browser can fetch three.js (and, for online play, PeerJS) from
+the jsDelivr CDN.
 
 **Controls:** W/↑ accelerate · S/↓ brake & reverse · A/D or ←/→ steer · hold Space while
-turning to drift, release to boost · R reset · M mute · Esc pause · ` (backquote) live tuning panel
+turning to drift, release to boost · R reset · M mute · Esc pause (online: menu, the race keeps
+running) · ` (backquote) live tuning panel
 
 Enter your driver name, pick **Solo Race** (or press Enter) and race 5 AI cars over 3 laps.
+
+## Online with friends (up to 4 players)
+
+1. One player picks **Host Online**. A 5-character room code appears in the lobby
+   (codes never use O, 0, I, 1 or L, so they're easy to read out).
+2. Friends pick **Join Online** and type the code.
+3. Everyone gets their own neon color; AI cars fill the rest of the 6-car grid. Only the
+   host can start the race, and after the results the host can start a **Rematch**.
+
+Connections go peer-to-peer (WebRTC) and are matched through the free public PeerJS server.
+Some strict networks (school, office, public Wi-Fi) block direct connections — if joining
+times out, try another network or a phone hotspot. Solo racing never needs the server.
+
+**Testing online on your own:** open `index.html` in **two browser windows** side by side
+(not two tabs — browsers pause background tabs). Host in one, join from the other. Only the
+focused window receives keyboard input, and you may want to press M in one of them.
 
 ## Tuning
 
@@ -25,5 +43,5 @@ You can also poke them from the browser console, e.g. `__dw.CONFIG.car.driftGrip
 - [x] Milestone 3 — AI, laps, positions, race flow, HUD
 - [x] Milestone 4 — drift boost
 - [x] Milestone 5 — audio
-- [ ] Milestone 6 — online multiplayer
+- [x] Milestone 6 — online multiplayer
 - [ ] Milestone 7 — polish
