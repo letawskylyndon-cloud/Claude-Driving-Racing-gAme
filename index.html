@@ -24,6 +24,29 @@
   #hud { position: fixed; inset: 0; pointer-events: none; }
   .neon-cyan { color: #eaffff; text-shadow: 0 0 4px var(--cyan), 0 0 14px var(--cyan), 0 0 30px rgba(25,240,255,.45); }
   .neon-pink { color: #fff0fb; text-shadow: 0 0 4px var(--pink), 0 0 14px var(--pink), 0 0 30px rgba(255,43,214,.45); }
+  #hudPos { position: absolute; left: 30px; top: 14px; font: italic 900 78px/1 var(--display); color: #fff; text-shadow: 0 0 6px var(--pink), 0 0 22px var(--pink); }
+  #hudPos small { font-size: 32px; color: #ffc6f0; }
+  #hudLap { position: absolute; left: 34px; top: 98px; font: italic 800 22px var(--display); letter-spacing: 3px; color: #eaffff; text-shadow: 0 0 6px var(--cyan), 0 0 16px var(--cyan); }
+  #hudLap b { font-size: 28px; }
+  #hudLap small { font-size: 18px; }
+  #standings { position: absolute; left: 30px; top: 140px; font: 700 13px var(--ui); letter-spacing: 1px; }
+  #standings div { display: flex; align-items: center; gap: 9px; min-width: 150px; padding: 3px 10px 3px 7px; margin-bottom: 3px; color: #e8dcff;
+    background: rgba(10,4,24,.55); border-left: 3px solid var(--c); }
+  #standings div.me { background: rgba(255,43,214,.28); color: #fff; }
+  #standings b { width: 14px; text-align: right; color: #fff; }
+  #standings i { font-style: normal; color: #7dff3a; }
+  #hudTimes { position: absolute; right: 32px; top: 20px; text-align: right; }
+  #hudTimes div { margin-bottom: 3px; }
+  #hudTimes label { margin-right: 10px; font: 700 12px var(--ui); letter-spacing: 3px; color: var(--cyan); text-shadow: 0 0 6px var(--cyan); }
+  #hudTimes span { font: italic 800 24px var(--mono); color: #fff; text-shadow: 0 0 8px rgba(255,255,255,.35); }
+  #centerMsg { position: absolute; left: 0; right: 0; top: 27%; text-align: center; font: italic 900 120px/1 var(--display); letter-spacing: 4px; color: #fff;
+    text-shadow: 0 0 10px var(--pink), 0 0 38px var(--pink); opacity: 0; transform: scale(1.35); transition: opacity .12s, transform .22s; }
+  #centerMsg.show { opacity: 1; transform: scale(1); }
+  #centerMsg.small { font-size: 62px; }
+  #centerMsg.go { color: #eaffff; text-shadow: 0 0 10px var(--cyan), 0 0 40px var(--cyan); }
+  #centerMsg.warn { color: #ffe3a8; text-shadow: 0 0 10px #ff8a00, 0 0 32px #ff5a00; }
+  #subMsg { position: absolute; left: 0; right: 0; top: calc(27% + 128px); text-align: center; font: italic 800 24px var(--display); letter-spacing: 4px;
+    color: #eaffff; text-shadow: 0 0 8px var(--cyan); }
   #speedo { position: absolute; right: 34px; bottom: 30px; text-align: right; }
   #speedVal { font: italic 900 68px/0.9 var(--mono); letter-spacing: -3px; }
   #speedUnit { font: 700 12px var(--ui); letter-spacing: 5px; margin-top: 4px; }
@@ -32,7 +55,7 @@
   #driftTag { position: absolute; left: 50%; bottom: 19%; transform: translateX(-50%) skewX(-12deg); font: italic 900 30px var(--display); letter-spacing: 6px; opacity: 0; transition: opacity .12s; }
   #driftTag.on { opacity: 1; }
   #debug { position: absolute; left: 14px; top: 12px; font: 12px/1.55 var(--mono); color: #d9c8ff; background: rgba(8,3,20,.55); padding: 7px 11px; border: 1px solid rgba(163,91,255,.35); white-space: pre; }
-  #help { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); font: 12px var(--ui); letter-spacing: 1px; color: rgba(230,215,255,.72); white-space: nowrap; }
+  #help { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font: 12px var(--ui); letter-spacing: 1px; color: rgba(230,215,255,.72); white-space: nowrap; }
   #help b { color: #fff; text-shadow: 0 0 6px var(--violet); }
 
   /* ---------- Overlays / menus ---------- */
@@ -55,6 +78,21 @@
   .btn.alt { border-color: var(--cyan); background: rgba(25,240,255,.1); text-shadow: 0 0 8px var(--cyan); box-shadow: 0 0 14px rgba(25,240,255,.5), inset 0 0 14px rgba(25,240,255,.3); }
   .btn.alt:hover { background: rgba(25,240,255,.28); }
   .hint { margin-top: 16px; font-size: 13px; letter-spacing: 2px; color: rgba(220,200,255,.7); }
+  .field { display: flex; gap: 12px; align-items: center; justify-content: center; margin: 26px auto 0; }
+  .field label { font: 700 12px var(--ui); letter-spacing: 4px; color: var(--cyan); text-shadow: 0 0 6px var(--cyan); }
+  .field input { width: 230px; padding: 9px 12px; font: italic 800 20px var(--display); letter-spacing: 2px; text-transform: uppercase; color: #fff;
+    background: rgba(10,4,24,.72); border: 2px solid var(--violet); outline: none; box-shadow: 0 0 10px rgba(163,91,255,.45); }
+  .field input:focus { border-color: var(--pink); box-shadow: 0 0 14px rgba(255,43,214,.7); }
+  .menu .btn { margin: 20px 5px 0; padding: 11px 24px; font-size: 18px; }
+  #menuMsg:empty { display: none; }
+  #resultsTable { margin: 18px auto 4px; min-width: 540px; border-collapse: collapse; font: 700 17px var(--ui); text-align: left; }
+  #resultsTable th { padding: 4px 16px; font: 700 11px var(--ui); letter-spacing: 3px; color: var(--cyan); }
+  #resultsTable td { padding: 8px 16px; border-bottom: 1px solid rgba(163,91,255,.25); }
+  #resultsTable td.pos { font: italic 900 22px var(--display); color: #fff; }
+  #resultsTable td.time { font-family: var(--mono); }
+  #resultsTable tr.me td { background: rgba(255,43,214,.2); color: #fff; }
+  #resultsTable .swatch { display: inline-block; width: 10px; height: 10px; margin-right: 10px; box-shadow: 0 0 6px currentColor; }
+  #resultsTable .dim { color: rgba(220,200,255,.55); font-family: var(--ui); font-size: 14px; }
   #loadError { color: #ffb3e6; }
 
   /* ---------- Dev tuning panel (toggle with the ` key) ---------- */
@@ -79,22 +117,37 @@
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
-  <div id="debug"></div>
+  <div id="hudPos"><span id="posVal">6</span><small id="posOf">/6</small></div>
+  <div id="hudLap">LAP <b id="lapVal">1</b><small>/<span id="lapOf">3</span></small></div>
+  <div id="standings"></div>
+  <div id="hudTimes">
+    <div><label>TIME</label><span id="totalTime">0:00.00</span></div>
+    <div><label>LAP</label><span id="lapTime">0:00.00</span></div>
+    <div><label>BEST</label><span id="bestTime">-:--.--</span></div>
+  </div>
+  <div id="centerMsg"></div>
+  <div id="subMsg"></div>
   <div id="driftTag" class="neon-pink">DRIFT</div>
   <div id="speedo">
     <div id="speedVal" class="neon-cyan">0</div>
     <div id="speedUnit" class="neon-cyan">KM/H</div>
     <div id="speedBar"><i></i></div>
   </div>
-  <div id="help"><b>W/↑</b> gas · <b>S/↓</b> brake/reverse · <b>A/D ←/→</b> steer · <b>SPACE</b> drift · <b>R</b> reset · <b>ESC</b> pause · <b>`</b> tuning</div>
+  <div id="debug" class="hidden"></div>
+  <div id="help"><b>W/↑</b> gas · <b>S/↓</b> brake/reverse · <b>A/D ←/→</b> steer · <b>SPACE</b> drift · <b>R</b> reset · <b>ESC</b> pause</div>
 </div>
 
 <div id="titleScreen" class="overlay">
   <div class="panel">
     <h1 class="logo">DRIFTWAVE</h1>
     <div class="tagline">NEON STREET RACING</div>
-    <p class="note">Milestone 2 — free practice. Take the circuit through the neon city: long straights,
-      tight 90° corners at the intersections and two fast sweeping bends.</p>
+    <div class="field"><label for="nameInput">DRIVER</label><input id="nameInput" maxlength="12" spellcheck="false" autocomplete="off" /></div>
+    <div class="menu">
+      <button class="btn" id="soloBtn">SOLO RACE</button>
+      <button class="btn alt" id="hostBtn">HOST ONLINE</button>
+      <button class="btn alt" id="joinBtn">JOIN ONLINE</button>
+    </div>
+    <p class="note" id="menuMsg"></p>
     <div class="keys">
       <b>W / ↑</b><span>accelerate</span>
       <b>S / ↓</b><span>brake &amp; reverse</span>
@@ -102,11 +155,9 @@
       <b>SPACE</b><span>hold while turning to drift</span>
       <b>R</b><span>back onto the track</span>
       <b>ESC</b><span>pause</span>
-      <b>`</b><span>live tuning panel</span>
     </div>
-    <button class="btn" id="startBtn">DRIVE</button>
-    <div class="hint" id="loadHint">PRESS ANY KEY</div>
     <p class="note hidden" id="loadError"></p>
+    <div class="hint" id="loadHint">3 LAPS · 6 CARS · PRESS ENTER FOR A SOLO RACE</div>
   </div>
 </div>
 
@@ -115,9 +166,22 @@
     <h1 class="logo" style="font-size:72px">PAUSED</h1>
     <div>
       <button class="btn" id="resumeBtn">RESUME</button>
-      <button class="btn alt" id="resetBtn">RESET CAR</button>
+      <button class="btn alt" id="restartBtn">RESTART</button>
+      <button class="btn alt" id="quitBtn">QUIT</button>
     </div>
     <div class="hint">ESC TO RESUME</div>
+  </div>
+</div>
+
+<div id="resultsScreen" class="overlay hidden">
+  <div class="panel">
+    <h1 class="logo" style="font-size:68px">RESULTS</h1>
+    <table id="resultsTable"></table>
+    <div>
+      <button class="btn" id="againBtn">RACE AGAIN</button>
+      <button class="btn alt" id="menuBtn">MAIN MENU</button>
+    </div>
+    <div class="hint">ENTER TO RACE AGAIN</div>
   </div>
 </div>
 
@@ -217,6 +281,10 @@ const CONFIG = {
     fogColor: 0x2b0f4c, fogDensity: 0.0021,
   },
   race: { laps: 3, gridSize: 6 },
+  ai: {
+    difficulty: 0.5,          // 0 = relaxed … 1 = fierce: shifts every AI's cornering pace and engine strength
+    rubberBand: 1.0,          // 0 = off. AI ahead of the leading human ease off, AI behind push a little
+  },
   colors: [0xff2bd6, 0x19f0ff, 0x7dff3a, 0xffa12e, 0xa35bff, 0xffe83a], // one neon color per racer
 };
 
@@ -511,7 +579,7 @@ class IdleInput {
 //   where it points. Drifting lowers grip and adds turn rate, so the back steps out.
 // =====================================================================
 class CarPhysics {
-  constructor() { this.events = []; this.reset(0, 0, 0); }
+  constructor() { this.events = []; this.perf = 1; this.reset(0, 0, 0); }   // perf scales top speed and acceleration
 
   reset(x, z, h) {
     this.x = x; this.z = z; this.h = h;
@@ -556,13 +624,13 @@ class CarPhysics {
     // --- engine, brakes, reverse
     const fwdBefore = fwd;
     const boosting = this.boostTime > 0;
-    const top = C.topSpeed + (boosting ? this.boostSpeed : 0);
+    const top = C.topSpeed * this.perf + (boosting ? this.boostSpeed : 0);
     const thr = ctl.throttle, brk = ctl.brake;
     if (thr > 0) {
       if (fwd < -0.5) fwd = Math.min(0, fwd + C.brake * thr * dt);            // rolling backwards: gas brakes first
       else if (fwd < top) {
         const r = Math.max(0, fwd) / top;
-        fwd = Math.min(top, fwd + C.accel * (1 - Math.pow(r, C.accelCurve)) * thr * dt);
+        fwd = Math.min(top, fwd + C.accel * this.perf * (1 - Math.pow(r, C.accelCurve)) * thr * dt);
       }
     }
     if (brk > 0) {
@@ -808,6 +876,12 @@ class CarView {
     const beam = add(G.glow, CAR_MAT.beam, 0, 0.07, 11.2, this.root); beam.scale.set(9, 1, 18);
 
     this.roll = 0; this.pitch = 0; this.spin = 0; this.steerVis = 0; this.driftYaw = 0;
+    this.ownMaterials = [paint, neon, this.tailMat, this.glowMat];
+  }
+
+  dispose() {
+    scene.remove(this.root);
+    for (const m of this.ownMaterials) m.dispose();
   }
 
   update(pose, p, dt) {
@@ -1559,7 +1633,7 @@ function buildCity(track) {
   // lots → buildings
   const facade = new GeoBuilder(), neon = new GeoBuilder();
   const buildings = [];
-  const palette = [0xff2bd6, 0x19f0ff, 0xa35bff, 0xff2bd6, 0x19f0ff, 0xffa12e, 0x7dff3a].map((h) => new THREE.Color(h).multiplyScalar(1.8));
+  const palette = [[0xff2bd6, 1.8], [0x19f0ff, 1.8], [0xa35bff, 1.8], [0xff2bd6, 1.8], [0x19f0ff, 1.8], [0xffa12e, 1.6], [0x7dff3a, 1.25]].map(([h, k]) => new THREE.Color(h).multiplyScalar(k));
   const cx0 = (minX + maxX) / 2, cz0 = (minZ + maxZ) / 2;
   const split = (a, b) => {
     const L = b - a, parts = L > 70 ? (rand() < 0.45 ? 2 : 3) : 2, cuts = [a];
@@ -1708,6 +1782,222 @@ function addPalm(gb, x, z, h, rand) {
 }
 
 // =====================================================================
+// AI — follows the racing line with look-ahead (pure pursuit) steering, brakes
+// for the slowest corner within braking distance, drifts tight corners (skill
+// permitting), steers around slower cars, and gets a mild rubber-band nudge
+// so races stay close. Produces the same controls as the keyboard.
+// =====================================================================
+// internal AI driving parameters (tuned by simulating races)
+const AI_TUNE = { driftFrom: 3, driftTo: 16, driftYawUse: 1.0, driftStartYaw: 1.1, driftHoldYaw: 0.7 };
+const AI_NAMES = ['VEGA', 'NOVA', 'RAZOR', 'KAIJU', 'BLAZE', 'ORBIT', 'JETT', 'ROXY', 'ZERO', 'MIRAGE', 'VOLT', 'ECHO', 'SABLE', 'TURBO'];
+
+// Fastest speed that holds each point of the racing line, on grip and in a neutral drift.
+// Derived from CONFIG.car, so the AI adapts when the handling is tuned (recomputed every race).
+function computeSpeedProfiles(track) {
+  const C = CONFIG.car, n = track.n;
+  const grip = new Float32Array(n), drift = new Float32Array(n);
+  const wGrip = C.steerRate * C.grip / (C.grip + C.slipAlign);          // self-aligning eats some steering
+  const wDrift = C.driftYawRate * (1 + C.driftYawMin) / 2 * AI_TUNE.driftYawUse;
+  const solve = (k, w0, f) => {                                         // v·k = w0 / (1 + f·v)
+    if (k < 1e-4) return 999;
+    if (f < 1e-6) return w0 / k;
+    return (-k + Math.sqrt(k * k + 4 * f * k * w0)) / (2 * f * k);
+  };
+  for (let i = 0; i < n; i++) {
+    let k = 0;
+    for (let d = -5; d <= 5; d++) k = Math.max(k, Math.abs(track.lineCurv[(i + d + n) % n]));
+    grip[i] = solve(k, wGrip, C.steerSpeedFalloff);
+    drift[i] = Math.max(grip[i], solve(k, wDrift, C.driftSpeedFalloff));
+  }
+  track.gripSpeed = grip;
+  track.driftSpeed = drift;
+}
+
+// level 0 = slowest of the field … 1 = fastest; CONFIG.ai.difficulty shifts the whole field
+function makeAISkill(level, rand = Math.random) {
+  const d = CONFIG.ai.difficulty;
+  return {
+    pace: lerp(0.74, 0.9, level) + d * 0.06 + (rand() - 0.5) * 0.02,   // share of the corner-speed limit they dare to carry
+    perf: lerp(0.93, 0.975, level) + d * 0.02,                        // engine: top speed / acceleration multiplier
+    look: 0.95 + rand() * 0.2,                                        // look-ahead distance scale
+    drift: true,                                                      // drifts the tight corners
+    wobble: 0.02 + rand() * 0.04,                                     // steering imprecision
+  };
+}
+
+class AIInput {
+  constructor(track, skill) {
+    this.kind = 'ai';
+    this.track = track;
+    this.skill = skill;
+    this.bias = 0;          // lateral offset from the racing line (overtaking)
+    this.rubber = 0;        // rubber-band pace adjustment, set by the race
+    this.stuck = 0;
+    this.t = Math.random() * 10;
+  }
+
+  sample(car, dt, out) {
+    const T = this.track, C = CONFIG.car, S = this.skill, p = car.phys, n = T.n;
+    const i = p.trackIdx >= 0 ? p.trackIdx : T.locate(p.x, p.z).idx;
+    const v = Math.max(0, p.fwd), speed = p.speed;
+    this.t += dt;
+
+    // --- traffic: pick a side to pass slower cars that are in our path
+    let want = 0;
+    const sn = Math.sin(p.h), cs = Math.cos(p.h);
+    for (const other of Game.cars) {
+      if (other === car) continue;
+      const q = other.phys, dx = q.x - p.x, dz = q.z - p.z;
+      const ahead = dx * sn + dz * cs, side = dx * cs - dz * sn;       // side: + = to our left
+      if (ahead < 1 || ahead > 14 + v * 0.35 || Math.abs(side) > 3.4) continue;
+      if (v - (q.vx * sn + q.vz * cs) < 0.5) continue;                // not closing in
+      want = side > 0 ? -3.8 : 3.8;
+      if (Math.abs(T.lineOff[i] + want) > T.wall - 2.4) want = -want;   // no room that side: go the other way
+    }
+    this.bias = damp(this.bias, want, 1.8, dt);
+
+    // --- pure pursuit toward a point on the racing line ahead (using the direction of travel, so it also works mid-drift)
+    const look = S.look * (7 + v * 0.38);
+    const j = (i + Math.round(look / T.spacing)) % n;
+    const lim = T.wall - 2.2, off = clamp(T.lineOff[j] + this.bias, -lim, lim);
+    const tx = T.x[j] + T.lx[j] * off - p.x, tz = T.z[j] + T.lz[j] * off - p.z;
+    const heading = speed > 4 ? Math.atan2(p.vx, p.vz) : p.h;
+    const alpha = wrapAngle(Math.atan2(tx, tz) - heading);
+    const yawWanted = ((2 * Math.sin(alpha)) / Math.max(4, Math.hypot(tx, tz))) * Math.max(v, 3) + Math.sin(this.t * 1.7) * S.wobble;
+
+    // --- drifting: kick it off on the way into a tight corner we're too fast to grip through; hold until it opens up
+    let kAhead = 0;
+    for (let k = AI_TUNE.driftFrom; k < AI_TUNE.driftTo; k++) { const c = T.lineCurv[(i + k) % n]; if (Math.abs(c) > Math.abs(kAhead)) kAhead = c; }
+    // a drift can't turn gentler than its minimum rate, so only start one once the corner really needs it
+    const minDriftYaw = (C.driftYawRate * C.driftYawMin) / (1 + C.driftSpeedFalloff * v);
+    if (!p.drifting) {
+      this.overDrift = 0;
+      out.drift = S.drift && Math.abs(kAhead) > 1 / 45 && v > C.driftMinSpeed + 6 && Math.abs(yawWanted) > minDriftYaw * AI_TUNE.driftStartYaw &&
+        v > T.gripSpeed[(i + 8) % n] * S.pace + 2 && Math.sign(kAhead) === Math.sign(yawWanted);
+    } else {
+      let kNear = 0;
+      for (let k = 0; k < 10; k++) { const c = T.lineCurv[(i + k) % n]; if (Math.sign(c) === p.driftDir) kNear = Math.max(kNear, Math.abs(c)); }
+      this.overDrift = yawWanted * p.driftDir < minDriftYaw * AI_TUNE.driftHoldYaw ? this.overDrift + dt : 0;   // drift turning us too much
+      out.drift = kNear > 1 / 90 && this.overDrift < 0.12;
+    }
+
+    // --- steering: map the wanted turn rate onto the stick (drift steering tightens / widens the slide)
+    if (p.drifting && out.drift) {
+      const base = C.driftYawRate / (1 + C.driftSpeedFalloff * v);
+      const frac = (yawWanted * p.driftDir) / base;
+      out.steer = clamp((2 * (frac - C.driftYawMin)) / (1 - C.driftYawMin) - 1, -1, 1) * p.driftDir;
+    } else {
+      const wMax = (C.steerRate * Math.min(1, v / C.steerFullSpeed + 0.05)) / (1 + C.steerSpeedFalloff * v) * (C.grip / (C.grip + C.slipAlign));
+      out.steer = clamp(yawWanted / Math.max(0.2, wMax), -1, 1);
+    }
+
+    // --- speed: the slowest corner within braking distance sets the target
+    const prof = S.drift ? T.driftSpeed : T.gripSpeed, pace = S.pace * (1 + this.rubber), decel = C.brake * 0.75;
+    let vt = 999;
+    for (let k = 0; k <= 90; k += 3) {
+      const vc = prof[(i + k) % n] * pace;
+      const va = Math.sqrt(vc * vc + 2 * decel * Math.max(0, k * T.spacing - 3));
+      if (va < vt) vt = va;
+    }
+    if (v < vt - 0.3) { out.throttle = 1; out.brake = 0; }
+    else if (v > vt + 1.2) { out.throttle = 0; out.brake = clamp((v - vt) / 8, 0.25, 1); }
+    else { out.throttle = 0.5; out.brake = 0; }
+
+    this.stuck = v < 2.5 ? this.stuck + dt : 0;       // pinned or turned around: the race resets us
+    return out;
+  }
+}
+
+// =====================================================================
+// RACE — laps via ordered checkpoints, race positions and timing.
+// Runs wherever the race is authoritative (solo: locally; online: the host).
+// =====================================================================
+class RaceTracker {
+  constructor(track, cars, laps) {
+    this.track = track;
+    this.laps = laps;
+    this.time = 0;
+    this.running = false;
+    this.finishOrder = [];
+    this.onLap = null;          // (entry, lapTime) callbacks for the HUD
+    this.onFinish = null;
+    this.entries = cars.map((car) => ({
+      car, lap: 1, nextCp: 0, onGrid: true, dist: 0, lastIdx: -1,
+      lapStart: 0, lapTimes: [], best: Infinity, finished: false, finishTime: 0, place: 0, wrongWay: 0,
+    }));
+    this.entries.forEach((e, k) => { e.place = k + 1; });   // grid order until the lights go out
+    this.order = [...this.entries];
+  }
+
+  entry(car) { return this.entries.find((e) => e.car === car); }
+
+  start() {
+    this.running = true;
+    this.time = 0;
+    const T = this.track;
+    for (const e of this.entries) {
+      const p = e.car.phys, idx = p.trackIdx >= 0 ? p.trackIdx : T.locate(p.x, p.z).idx;
+      e.lastIdx = idx;
+      e.dist = T.s[idx] - (idx > T.n / 2 ? T.length : 0);   // grid slots sit just behind the line: negative
+    }
+  }
+
+  update(dt) {
+    if (!this.running) return;
+    this.time += dt;
+    const T = this.track, n = T.n;
+    for (const e of this.entries) {
+      const p = e.car.phys, idx = p.trackIdx;
+      if (idx < 0 || e.lastIdx < 0) continue;
+      let d = idx - e.lastIdx;
+      if (d > n / 2) d -= n; else if (d < -n / 2) d += n;
+      if (d !== 0) {
+        e.dist += d * T.spacing;
+        if (d > 0) {
+          const c = T.checkpoints[e.nextCp], dc = (c - e.lastIdx + n) % n;
+          if (dc > 0 && dc <= d) this.checkpoint(e);
+        }
+        e.lastIdx = idx;
+      }
+      e.wrongWay = p.vx * T.tx[idx] + p.vz * T.tz[idx] < -3 ? e.wrongWay + dt : 0;
+    }
+    this.rank();
+  }
+
+  checkpoint(e) {
+    if (e.nextCp !== 0) { e.nextCp = (e.nextCp + 1) % this.track.checkpoints.length; return; }
+    e.nextCp = 1;                                    // crossed the start/finish line with every checkpoint done
+    if (e.onGrid) { e.onGrid = false; return; }      // leaving the grid: the clock has run since GO
+    if (e.finished) return;
+    const t = this.time - e.lapStart;
+    e.lapTimes.push(t);
+    e.best = Math.min(e.best, t);
+    e.lapStart = this.time;
+    if (e.lap >= this.laps) {
+      e.finished = true;
+      e.finishTime = this.time;
+      this.finishOrder.push(e);
+      this.rank();
+      if (this.onFinish) this.onFinish(e);
+    } else {
+      e.lap++;
+      if (this.onLap) this.onLap(e, t);
+    }
+  }
+
+  rank() {
+    this.order = [...this.entries].sort((a, b) => {
+      if (a.finished !== b.finished) return a.finished ? -1 : 1;
+      if (a.finished) return a.finishTime - b.finishTime;
+      return b.dist - a.dist;
+    });
+    this.order.forEach((e, k) => { e.place = k + 1; });
+  }
+
+  get allFinished() { return this.entries.every((e) => e.finished); }
+}
+
+// =====================================================================
 // CAMERA — smooth chase cam: looks ahead, swings out in drifts, FOV widens with speed
 // =====================================================================
 class ChaseCamera {
@@ -1769,31 +2059,82 @@ const _pa = {}, _pb = {};
 // HUD
 // =====================================================================
 const $ = (id) => document.getElementById(id);
+const ORDINAL = ['1ST', '2ND', '3RD', '4TH', '5TH', '6TH', '7TH', '8TH'];
+function fmtTime(t) {
+  if (!Number.isFinite(t) || t < 0) return '-:--.--';
+  const m = Math.floor(t / 60), s = t - m * 60;
+  return `${m}:${s.toFixed(2).padStart(5, '0')}`;
+}
+const cssColor = (hex) => '#' + hex.toString(16).padStart(6, '0');
+
 const HUD = {
-  el: $('hud'), speed: $('speedVal'), bar: $('speedBar').firstElementChild, drift: $('driftTag'), debug: $('debug'),
+  el: $('hud'),
+  ids: ['posVal', 'posOf', 'lapVal', 'lapOf', 'totalTime', 'lapTime', 'bestTime', 'speedVal', 'centerMsg', 'subMsg', 'debug'],
+  els: {}, cache: {},
+  msg: null, standingsKey: '',
+
+  init() { for (const id of this.ids) this.els[id] = $(id); this.bar = $('speedBar').firstElementChild; this.drift = $('driftTag'); this.standings = $('standings'); },
   show(on) { this.el.classList.toggle('hidden', !on); },
-  update(car, fps) {
-    const p = car.phys;
+  set(id, text) { if (this.cache[id] !== text) { this.cache[id] = text; this.els[id].textContent = text; } },
+  // big center message (countdown, GO!, FINAL LAP...) for a few seconds
+  flash(text, secs, cls = '', sub = '') { this.msg = { text, until: performance.now() + secs * 1000, cls, sub }; },
+
+  update(game, fps) {
+    const car = game.player, race = game.race;
+    if (!car || !race) return;
+    const p = car.phys, e = race.entry(car);
     const kmh = Math.round(Math.abs(p.fwd) * 3.6);
-    this.speed.textContent = kmh;
+    this.set('speedVal', String(kmh));
     this.bar.style.width = `${clamp(Math.abs(p.fwd) / (CONFIG.car.topSpeed + 12), 0, 1) * 100}%`;
     this.drift.classList.toggle('on', p.drifting);
-    this.debug.textContent =
-      `SPEED  ${kmh.toString().padStart(3)} km/h  (${p.fwd.toFixed(1)} m/s)\n` +
-      `SLIP   ${(p.slip * 180 / Math.PI).toFixed(1).padStart(5)}°\n` +
-      `YAW    ${p.yawRate.toFixed(2).padStart(5)} rad/s\n` +
-      `DRIFT  ${p.drifting ? (p.driftDir > 0 ? 'LEFT ' : 'RIGHT') + ' ' + p.driftTime.toFixed(1) + 's' : '—'}\n` +
-      `TRACK  ${p.trackIdx >= 0 ? Math.round(Game.track.s[p.trackIdx]) : 0} / ${Math.round(Game.track.length)} m\n` +
-      `FPS    ${fps.toFixed(0)}`;
+    this.set('posVal', String(e.place));
+    this.set('posOf', `/${race.entries.length}`);
+    this.set('lapVal', String(Math.min(e.lap, race.laps)));
+    this.set('lapOf', String(race.laps));
+    const now = e.finished ? e.finishTime : race.time;
+    this.set('totalTime', fmtTime(now));
+    this.set('lapTime', fmtTime(e.finished ? e.lapTimes[e.lapTimes.length - 1] : race.time - e.lapStart));
+    this.set('bestTime', fmtTime(e.best));
+
+    // standings (rebuilt only when the order changes)
+    const key = race.order.map((o) => o.place + o.car.id + (o.finished ? 'F' : '')).join();
+    if (key !== this.standingsKey) {
+      this.standingsKey = key;
+      this.standings.innerHTML = race.order.map((o) =>
+        `<div class="${o.car === car ? 'me' : ''}" style="--c:${cssColor(o.car.color)}"><b>${o.place}</b>${escapeHtml(o.car.name)}${o.finished ? ' <i>✓</i>' : ''}</div>`).join('');
+    }
+
+    // center message: timed flashes win; otherwise nag about driving the wrong way
+    let text = '', cls = '', sub = '';
+    const counting = game.state === 'countdown' || (game.state === 'paused' && game.resumeState === 'countdown');
+    if (counting) { text = String(Math.max(1, Math.ceil(game.countdown))); cls = 'count'; }
+    else if (race.running && race.time < 0.9) { text = 'GO!'; cls = 'go'; }
+    else if (game.resultsShown) text = '';
+    else if (this.msg && performance.now() < this.msg.until) ({ text, cls, sub } = this.msg);
+    else if (!e.finished && e.wrongWay > 1.2 && game.state === 'racing') { text = 'WRONG WAY'; cls = 'warn small'; sub = 'PRESS R TO RESET'; }
+    this.set('centerMsg', text);
+    this.els.centerMsg.className = text ? `show ${cls}` : '';
+    this.set('subMsg', sub);
+
+    if (!this.els.debug.classList.contains('hidden')) {
+      this.set('debug',
+        `SPEED  ${kmh.toString().padStart(3)} km/h  (${p.fwd.toFixed(1)} m/s)\n` +
+        `SLIP   ${(p.slip * 180 / Math.PI).toFixed(1).padStart(5)}°\n` +
+        `YAW    ${p.yawRate.toFixed(2).padStart(5)} rad/s\n` +
+        `DRIFT  ${p.drifting ? (p.driftDir > 0 ? 'LEFT ' : 'RIGHT') + ' ' + p.driftTime.toFixed(1) + 's' : '—'}\n` +
+        `TRACK  ${p.trackIdx >= 0 ? Math.round(game.track.s[p.trackIdx]) : 0} / ${Math.round(game.track.length)} m\n` +
+        `FPS    ${fps.toFixed(0)}`);
+    }
   },
 };
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 // =====================================================================
-// GAME STATE
+// GAME STATE — title → countdown → racing → finished (results) → race again
 // =====================================================================
 class Car {
-  constructor({ id, name, color, input }) {
-    this.id = id; this.name = name; this.color = color; this.input = input;
+  constructor({ id, name, color, input, human = false }) {
+    this.id = id; this.name = name; this.color = color; this.input = input; this.human = human;
     this.phys = new CarPhysics();
     this.ctl = { throttle: 0, brake: 0, steer: 0, drift: false };
     this.prev = { x: 0, z: 0, h: 0 };
@@ -1821,73 +2162,201 @@ class Car {
     out.z = this.pose.z - sn * lx + cs * lz;
     return out;
   }
+  dispose() { this.view.dispose(); }
 }
 
+const SIM_STATES = new Set(['countdown', 'racing', 'finished']);
+const Store = {                        // tiny localStorage wrapper (file:// or private mode may refuse)
+  get(k, d) { try { return localStorage.getItem('driftwave.' + k) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('driftwave.' + k, v); } catch { /* ignore */ } },
+};
+
 const Game = {
-  state: 'title',          // title | drive | paused
+  state: 'title',          // title | countdown | racing | finished | paused
+  mode: 'solo',
   cars: [],
   player: null,
+  race: null,
+  humans: [],              // the human racers of the current race (kept for "race again")
   track: null,
   city: null,
   simTime: 0,
-  debugCam: null,          // { pos: [x,y,z], look: [x,y,z] } overrides the chase cam (testing / screenshots)
+  countdown: 0,
+  finishTimer: 0,
+  resultsShown: false,
+  resumeState: null,
+  debugCam: null,          // { pos: [x,y,z], look: [x,y,z] } overrides the camera (testing / screenshots)
 
   init() {
     const t0 = performance.now();
     this.track = new Track(TRACK_CORNERS, TRACK_START);
     buildTrackMeshes(this.track);
     this.city = buildCity(this.track);
+    computeSpeedProfiles(this.track);
     this.buildMs = performance.now() - t0;
-    this.player = this.addCar({ id: 'p1', name: 'YOU', color: CONFIG.colors[0], input: new KeyboardInput() });
-    const g = this.track.gridPose(0);
-    this.player.place(g.x, g.z, g.h);
     this.chase = new ChaseCamera(camera);
-    this.chase.snap(this.player.pose);
+    $('nameInput').value = Store.get('name', 'RACER');
+  },
+
+  playerName() {
+    const name = ($('nameInput').value || '').toUpperCase().replace(/[^A-Z0-9 _.-]/g, '').trim().slice(0, 12) || 'RACER';
+    $('nameInput').value = name;
+    Store.set('name', name);
+    return name;
   },
 
   addCar(opts) { const c = new Car(opts); this.cars.push(c); return c; },
+  clearCars() { for (const c of this.cars) c.dispose(); this.cars = []; this.player = null; this.race = null; },
 
-  start() {
-    if (this.state !== 'title') return;
-    this.state = 'drive';
-    $('titleScreen').classList.add('hidden');
+  startSolo() {
+    this.mode = 'solo';
+    this.humans = [{ id: 'p1', name: this.playerName(), color: CONFIG.colors[0], local: true }];
+    this.setupRace();
+  },
+
+  // Grid: AI cars fill the front slots, human players start at the back.
+  setupRace() {
+    this.clearCars();
+    computeSpeedProfiles(this.track);                       // AI follows any CONFIG.car tuning
+    const size = Math.max(CONFIG.race.gridSize, this.humans.length);
+    const taken = this.humans.map((h) => h.color);
+    const aiColors = CONFIG.colors.filter((c) => !taken.includes(c));
+    const names = [...AI_NAMES].sort(() => Math.random() - 0.5);
+    const nAI = size - this.humans.length;
+    for (let k = 0; k < nAI; k++) {                           // fastest AI on pole
+      const skill = makeAISkill(nAI > 1 ? 1 - k / (nAI - 1) : 0.5);
+      const car = this.addCar({ id: 'ai' + k, name: names[k], color: aiColors[k % aiColors.length], input: new AIInput(this.track, skill) });
+      car.phys.perf = skill.perf;
+    }
+    for (const h of this.humans) this.addCar({ id: h.id, name: h.name, color: h.color, human: true, input: h.local ? new KeyboardInput() : new IdleInput() });
+    this.cars.forEach((car, slot) => { const g = this.track.gridPose(slot); car.place(g.x, g.z, g.h); });
+    this.player = this.cars.find((c) => c.input.kind === 'keyboard');
+    this.race = new RaceTracker(this.track, this.cars, CONFIG.race.laps);
+    this.race.onLap = (e, t) => this.onLap(e, t);
+    this.race.onFinish = (e) => this.onFinish(e);
+    this.state = 'countdown';
+    this.countdown = 3;
+    this.finishTimer = 0;
+    this.resultsShown = false;
+    for (const id of ['titleScreen', 'pauseScreen', 'resultsScreen']) $(id).classList.add('hidden');
+    HUD.standingsKey = ''; HUD.msg = null;
     HUD.show(true);
     this.chase.snap(this.player.pose);
   },
 
-  togglePause() {
-    if (this.state === 'drive') { this.state = 'paused'; $('pauseScreen').classList.remove('hidden'); Keys.clear(); }
-    else if (this.state === 'paused') { this.state = 'drive'; $('pauseScreen').classList.add('hidden'); }
+  onLap(e, lapTime) {
+    if (e.car !== this.player) return;
+    if (e.lap === this.race.laps) HUD.flash('FINAL LAP', 2.2, 'small', `LAP ${fmtTime(lapTime)}`);
+    else HUD.flash(`LAP ${e.lap}`, 1.8, 'small', fmtTime(lapTime));
   },
 
-  resetPlayer() {
+  onFinish(e) {
+    if (e.car !== this.player) return;
+    this.state = 'finished';
+    this.finishTimer = 0;
+    HUD.flash('FINISH!', 3, '', `${ORDINAL[e.place - 1]} PLACE · ${fmtTime(e.finishTime)}`);
+    // hand the wheel to the AI for a cool-down lap while everyone else finishes
+    this.player.input = new AIInput(this.track, { pace: 0.8, look: 1, drift: false, perf: 1, wobble: 0 });
+  },
+
+  showResults() {
+    this.resultsShown = true;
+    HUD.msg = null;
+    this.refreshResults();
+    $('resultsScreen').classList.remove('hidden');
+  },
+
+  refreshResults() {
+    const race = this.race;
+    $('resultsTable').innerHTML = '<tr><th>POS</th><th>DRIVER</th><th>TIME</th><th>BEST LAP</th></tr>' +
+      race.order.map((e) => `<tr class="${e.car === this.player ? 'me' : ''}">
+        <td class="pos">${e.place}</td>
+        <td><span class="swatch" style="background:${cssColor(e.car.color)};color:${cssColor(e.car.color)}"></span>${escapeHtml(e.car.name)}</td>
+        <td class="time">${e.finished ? fmtTime(e.finishTime) : `<span class="dim">LAP ${Math.min(e.lap, race.laps)}/${race.laps}…</span>`}</td>
+        <td class="time">${fmtTime(e.best)}</td></tr>`).join('');
+  },
+
+  togglePause() {
+    if (SIM_STATES.has(this.state)) {
+      this.resumeState = this.state;
+      this.state = 'paused';
+      $('pauseScreen').classList.remove('hidden');
+      Keys.clear();
+    } else if (this.state === 'paused') {
+      this.state = this.resumeState;
+      $('pauseScreen').classList.add('hidden');
+    }
+  },
+
+  quitToMenu() {
+    this.clearCars();
+    this.state = 'title';
+    for (const id of ['pauseScreen', 'resultsScreen']) $(id).classList.add('hidden');
+    HUD.show(false);
+    $('titleScreen').classList.remove('hidden');
+  },
+
+  resetCar(car) {
     // back on the track at the last point passed, facing the right way
-    const p = this.player.phys;
+    const p = car.phys;
     const r = this.track.resetPose(p.trackIdx >= 0 ? p.trackIdx : this.track.locate(p.x, p.z).idx);
-    this.player.place(r.x, r.z, r.h);
+    car.place(r.x, r.z, r.h);
+    p.trackIdx = this.track.locate(r.x, r.z).idx;
   },
 
   onKeyPress(code) {
-    if (code === 'Backquote') { $('tuning').classList.toggle('hidden'); return; }
-    if (this.state === 'title') { if (code !== 'Escape') this.start(); return; }
+    if (code === 'Backquote') { $('tuning').classList.toggle('hidden'); $('debug').classList.toggle('hidden'); return; }
+    if (this.state === 'title') { if (code === 'Enter') this.startSolo(); return; }
+    if (this.resultsShown && code === 'Enter') { this.setupRace(); return; }
     if (code === 'Escape') this.togglePause();
-    else if (code === 'KeyR' && this.state === 'drive') this.resetPlayer();
+    else if (code === 'KeyR' && this.state === 'racing') this.resetCar(this.player);
   },
 
   // ---- one fixed simulation tick ----
   simStep(dt) {
     this.simTime += dt;
-    const cars = this.cars;
+    const cars = this.cars, frozen = this.state === 'countdown';
     for (const car of cars) {
       car.savePrev();
       if (!car.simulated) continue;
-      car.input.sample(car, dt, car.ctl);
+      if (frozen) { car.ctl.throttle = 0; car.ctl.brake = 1; car.ctl.steer = 0; car.ctl.drift = false; }
+      else car.input.sample(car, dt, car.ctl);
       car.phys.step(car.ctl, dt);
     }
     for (const car of cars) if (car.simulated) this.track.collide(car.phys);
     for (let i = 0; i < cars.length; i++) for (let j = i + 1; j < cars.length; j++) {
       const a = cars[i], b = cars[j];
-      if (a.simulated || b.simulated) collideCars(a.phys, b.phys, a.simulated, b.simulated, a.simulated && b.simulated ? 0 : 1);
+      if (!a.simulated && !b.simulated) continue;
+      const dx = a.phys.x - b.phys.x, dz = a.phys.z - b.phys.z;
+      if (dx * dx + dz * dz > 36) continue;
+      collideCars(a.phys, b.phys, a.simulated, b.simulated, a.simulated && b.simulated ? 0 : 1);
+    }
+    for (const car of cars) if (car.input.kind === 'ai' && car.input.stuck > 2.5) { this.resetCar(car); car.input.stuck = 0; }
+
+    if (frozen) {
+      this.countdown -= dt;
+      if (this.countdown <= 0) { this.state = 'racing'; this.race.start(); }
+    } else if (this.race) {
+      this.race.update(dt);
+      this.rubberBand();
+      if (this.state === 'finished') {
+        this.finishTimer += dt;
+        if (!this.resultsShown && this.finishTimer > 3) this.showResults();
+        else if (this.resultsShown && Math.floor(this.finishTimer * 2) !== Math.floor((this.finishTimer - dt) * 2)) this.refreshResults();
+      }
+    }
+  },
+
+  // Mild rubber band: AI ahead of the leading human ease off, AI behind push a little harder.
+  rubberBand() {
+    const humans = this.race.entries.filter((e) => e.car.human && !e.finished);
+    const lead = humans.length ? Math.max(...humans.map((e) => e.dist)) : null;
+    for (const e of this.race.entries) {
+      const ai = e.car.input;
+      if (ai.kind !== 'ai' || e.car.human) continue;
+      const gap = lead === null ? 0 : e.dist - lead;
+      ai.rubber = CONFIG.ai.rubberBand * (gap > 0 ? -Math.min(0.06, gap / 2500) : Math.min(0.04, -gap / 3000));
+      e.car.phys.perf = ai.skill.perf * (1 + ai.rubber * 0.4);
     }
   },
 
@@ -1900,7 +2369,7 @@ const Game = {
     }
     Effects.update(dt);
     if (this.debugCam) { camera.position.fromArray(this.debugCam.pos); camera.lookAt(...this.debugCam.look); }
-    else if (this.state === 'title') this.chase.flyover(dt, this.track);
+    else if (this.state === 'title' || !this.player) this.chase.flyover(dt, this.track);
     else this.chase.update(dt, this.player.pose, this.player.phys);
     sky.group.position.copy(camera.position);
     sky.sunMat.uniforms.uTime.value = performance.now() / 1000;
@@ -1994,12 +2463,23 @@ function onResize() {
 window.addEventListener('resize', onResize);
 
 Game.init();
+HUD.init();
 buildTuningPanel();
 // Menu buttons drop focus after use so Space (drift) can never re-click them.
 const onButton = (id, fn) => $(id).addEventListener('click', (e) => { e.currentTarget.blur(); fn(); });
-onButton('startBtn', () => Game.start());
+const menuMsg = (text) => { $('menuMsg').textContent = text; };
+onButton('soloBtn', () => Game.startSolo());
+onButton('hostBtn', () => menuMsg('Online play arrives in milestone 6 — for now, try a solo race!'));
+onButton('joinBtn', () => menuMsg('Online play arrives in milestone 6 — for now, try a solo race!'));
 onButton('resumeBtn', () => Game.togglePause());
-onButton('resetBtn', () => { Game.resetPlayer(); Game.togglePause(); });
+onButton('restartBtn', () => Game.setupRace());
+onButton('quitBtn', () => Game.quitToMenu());
+onButton('againBtn', () => Game.setupRace());
+onButton('menuBtn', () => Game.quitToMenu());
+$('nameInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); Game.startSolo(); }
+  else if (e.key === 'Escape') e.target.blur();
+});
 // Clicking the game view or pressing Enter/Esc in a tuning field hands the keyboard back to the car.
 canvas.addEventListener('pointerdown', () => document.activeElement && document.activeElement.blur());
 $('tuning').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === 'Escape') e.target.blur(); });
@@ -2010,21 +2490,22 @@ function frame(now) {
   const dt = Math.min(0.1, Math.max(0, (now - lastT) / 1000));
   lastT = now;
   if (dt > 0) fps = lerp(fps, 1 / dt, 0.05);
-  if (Game.state === 'drive') {
+  if (SIM_STATES.has(Game.state)) {
     acc += dt;
     let steps = 0;
     while (acc >= SIM_DT && steps < 15) { Game.simStep(SIM_DT); acc -= SIM_DT; steps++; }
     if (steps === 15) acc = 0;
   }
   Game.present(dt, clamp(acc / SIM_DT, 0, 1));
-  if (Game.state !== 'title') HUD.update(Game.player, fps);
+  if (Game.state !== 'title') HUD.update(Game, fps);
+  $('help').classList.toggle('hidden', Game.state !== 'countdown');
   composer.render(dt);
 }
 requestAnimationFrame(frame);
 
 window.__dwBooted = true;
 // Handy for tuning from the browser console, e.g.  __dw.CONFIG.car.driftGrip = 2.5
-window.__dw = { CONFIG, Game, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene };
+window.__dw = { CONFIG, Game, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles };
 </script>
 </body>
 </html>
