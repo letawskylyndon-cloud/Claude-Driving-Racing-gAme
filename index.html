@@ -59,6 +59,16 @@
   #boostMeter div.full { border-color: var(--t); box-shadow: 0 0 12px var(--t); }
   #boostMeter.boosting div { animation: meterPulse .18s linear infinite alternate; }
   @keyframes meterPulse { from { filter: brightness(1); } to { filter: brightness(1.8); } }
+  #speedLines { position: absolute; left: -8%; top: -8%; width: 116%; height: 116%; opacity: 0; visibility: hidden; mix-blend-mode: screen;
+    animation: speedRush .2s linear infinite; }
+  @keyframes speedRush { from { transform: scale(1); } to { transform: scale(1.07); } }
+  #hudBack { position: absolute; left: 0; top: 0; width: 330px; height: 330px; background: radial-gradient(ellipse at 0 0, rgba(6,2,16,.62), rgba(6,2,16,0) 70%); }
+  #hudBackR { position: absolute; right: 0; top: 0; width: 360px; height: 190px; background: radial-gradient(ellipse at 100% 0, rgba(6,2,16,.6), rgba(6,2,16,0) 70%); }
+  #hudBackS { position: absolute; right: 0; bottom: 0; width: 420px; height: 240px; background: radial-gradient(ellipse at 100% 100%, rgba(6,2,16,.6), rgba(6,2,16,0) 70%); }
+  #gearVal { display: inline-block; min-width: 34px; margin-left: 10px; padding: 1px 6px; font: italic 900 15px var(--mono); letter-spacing: 1px; text-align: center;
+    color: #fff; border: 1px solid rgba(25,240,255,.7); box-shadow: 0 0 8px rgba(25,240,255,.45); }
+  #subMsg.good { color: #d9ffd0; text-shadow: 0 0 8px #3aff6a, 0 0 20px #3aff6a; }
+  #subMsg.bad { color: #ffe0c8; text-shadow: 0 0 8px #ff7a2e; }
   #boostFlash { position: absolute; inset: 0; opacity: 0; box-shadow: inset 0 0 160px 30px var(--flash, #19f0ff); transition: opacity .45s ease-out; }
   #boostFlash.on { opacity: .6; transition: none; }
   #speedBar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--violet) 60%, var(--pink)); box-shadow: 0 0 10px var(--pink); }
@@ -73,7 +83,9 @@
   /* ---------- Overlays / menus ---------- */
   .overlay { position: fixed; inset: 0; display: flex; overflow-y: auto;          /* scrolls when a small window can't fit the panel */
     background: radial-gradient(ellipse at 50% 55%, rgba(36,8,64,.30), rgba(5,2,14,.80)); }
-  .panel { margin: auto; text-align: center; padding: 30px 44px; max-width: 780px; }
+  .panel { position: relative; z-index: 1; margin: auto; text-align: center; padding: 30px 44px; max-width: 780px; }
+  .overlay::before { content: ''; position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px); }
   .logo { margin: 0; font: italic 900 clamp(54px, 10vw, 128px)/0.95 var(--display); letter-spacing: 2px;
     background: linear-gradient(180deg, #fff 8%, #ffe27a 30%, #ff7ac8 56%, #ff2bd6 70%, #7b2bff 100%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -97,6 +109,11 @@
   .field input:focus { border-color: var(--pink); box-shadow: 0 0 14px rgba(255,43,214,.7); }
   .menu .btn { margin: 20px 5px 0; padding: 11px 24px; font-size: 18px; }
   #menuMsg:empty { display: none; }
+  #resultsHead { margin-top: 4px; font: italic 900 30px var(--display); letter-spacing: 4px; color: #fff; text-shadow: 0 0 8px var(--cyan), 0 0 24px var(--cyan); }
+  #resultsHead.win { color: #fff6d0; text-shadow: 0 0 8px var(--gold), 0 0 28px var(--gold); }
+  #resultsTable tr.p1 td.pos { color: #ffe37a; text-shadow: 0 0 10px var(--gold); }
+  #resultsTable tr.p2 td.pos { color: #e8ecff; text-shadow: 0 0 10px #b9c6ff; }
+  #resultsTable tr.p3 td.pos { color: #ffc49a; text-shadow: 0 0 10px #ff8a3d; }
   #resultsTable { margin: 18px auto 4px; min-width: 540px; border-collapse: collapse; font: 700 17px var(--ui); text-align: left; }
   #resultsTable th { padding: 4px 16px; font: 700 11px var(--ui); letter-spacing: 3px; color: var(--cyan); }
   #resultsTable td { padding: 8px 16px; border-bottom: 1px solid rgba(163,91,255,.25); }
@@ -145,6 +162,7 @@
 <canvas id="game"></canvas>
 
 <div id="hud" class="hidden">
+  <div id="hudBack"></div><div id="hudBackR"></div><div id="hudBackS"></div>
   <div id="hudPos"><span id="posVal">6</span><small id="posOf">/6</small></div>
   <div id="hudLap">LAP <b id="lapVal">1</b><small>/<span id="lapOf">3</span></small></div>
   <div id="standings"></div>
@@ -158,11 +176,12 @@
   <div id="driftTag" class="neon-pink">DRIFT</div>
   <div id="speedo">
     <div id="speedVal" class="neon-cyan">0</div>
-    <div id="speedUnit" class="neon-cyan">KM/H</div>
+    <div id="speedUnit" class="neon-cyan">KM/H<span id="gearVal">1</span></div>
     <div id="speedBar"><i></i></div>
     <div id="boostMeter"><span>BOOST</span><div><i></i></div><div><i></i></div><div><i></i></div></div>
   </div>
   <div id="boostFlash"></div>
+  <canvas id="speedLines" width="1024" height="1024"></canvas>
   <div id="debug" class="hidden"></div>
   <div id="help"><b>W/↑</b> gas · <b>S/↓</b> brake/reverse · <b>A/D ←/→</b> steer · <b>SPACE</b> drift · <b>R</b> reset · <b>ESC</b> pause</div>
 </div>
@@ -201,12 +220,14 @@
       <button class="btn alt" id="quitBtn">QUIT</button>
     </div>
     <div class="hint" id="pauseHint">ESC TO RESUME</div>
+    <p class="note">W/↑ gas · S/↓ brake &amp; reverse · A/D steer · SPACE drift (release to boost) · R reset · M mute</p>
   </div>
 </div>
 
 <div id="resultsScreen" class="overlay hidden">
   <div class="panel">
     <h1 class="logo" style="font-size:68px">RESULTS</h1>
+    <div id="resultsHead"></div>
     <table id="resultsTable"></table>
     <div>
       <button class="btn" id="againBtn">RACE AGAIN</button>
@@ -268,8 +289,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 // =====================================================================
 //  DRIFTWAVE — neon synthwave street racer, single-file prototype.
 //  Sections: CONFIG · UTILITIES · RENDERER & SCENE · SKY · INPUT SOURCES
-//            · CAR PHYSICS · COLLISIONS · CAR VISUALS · EFFECTS
-//            · WORLD (test arena) · CAMERA · HUD · GAME STATE · MAIN LOOP
+//            · CAR PHYSICS · COLLISIONS · CAR VISUALS · EFFECTS · GEOMETRY BATCHING
+//            · TRACK · CITY · AI · RACE · NETWORKING · CAMERA · AUDIO · HUD
+//            · GAME STATE · DEV TUNING PANEL · MAIN LOOP
 //  Simulation (fixed 120 Hz, units: meters / seconds / radians) is kept
 //  separate from rendering; every car is driven by an input source.
 // =====================================================================
@@ -337,7 +359,7 @@ const CONFIG = {
     width: 15,                // road width in meters (the barriers sit just outside it)
   },
   render: {
-    maxPixelRatio: 1.5,
+    maxPixelRatio: 1.25,      // lower (e.g. 1) if a laptop struggles, raise for extra crispness
     bloomStrength: 0.7, bloomRadius: 0.42, bloomThreshold: 1.0,
     exposure: 1.05,
     fogColor: 0x2b0f4c, fogDensity: 0.0021,
@@ -417,7 +439,7 @@ const camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, window.innerWidth 
 
 // Post-processing: HDR render → bloom (only very bright neon passes the threshold) → tone map + sRGB.
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {
-  type: THREE.HalfFloatType, samples: pixelRatio > 1.25 ? 2 : 4,
+  type: THREE.HalfFloatType, samples: pixelRatio >= 1.2 ? 2 : 4,
 }));
 composer.setPixelRatio(pixelRatio);
 composer.setSize(window.innerWidth, window.innerHeight);
@@ -616,7 +638,6 @@ scene.environment = buildEnvironment();
 //   AIInput       — computer drivers (AI section); simulated solo or on the online host
 //   NetworkInput  — cars driven by another machine (NETWORKING section): their state is
 //                   interpolated from snapshots instead of simulated here
-//   IdleInput     — parked / placeholder cars
 // =====================================================================
 const Keys = new Set();
 const GAME_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyR', 'KeyM', 'Escape']);
@@ -644,11 +665,6 @@ class KeyboardInput {
     out.drift = k.has('Space');
     return out;
   }
-}
-
-class IdleInput {
-  constructor() { this.kind = 'idle'; }
-  sample(car, dt, out) { out.throttle = 0; out.brake = 0; out.steer = 0; out.drift = false; return out; }
 }
 
 // =====================================================================
@@ -1051,7 +1067,7 @@ class Particles {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mv;
           gl_PointSize = min(aSize * uScale / max(-mv.z, 0.1), 220.0);
-          vColor = aColor; vAlpha = aAlpha;
+          vColor = aColor; vAlpha = aAlpha * smoothstep(1.5, 5.0, -mv.z);   // fade out right at the lens (no screen-filling blobs)
         }`,
       fragmentShader: /* glsl */`
         varying vec3 vColor; varying float vAlpha;
@@ -1107,53 +1123,69 @@ class Particles {
 }
 
 class SkidMarks {
-  constructor(maxSegs = 1800, life = 24) {
-    this.max = maxSegs; this.next = 0; this.life = life; this.dirty = false;
+  constructor(maxSegs = 2400, life = 6) {
+    this.max = maxSegs; this.next = 0; this.life = life;
+    this.first = -1; this.count = 0;                // ring-buffer slots written since the last upload
     this.pos = new Float32Array(maxSegs * 12);
     this.birth = new Float32Array(maxSegs * 4).fill(-1e6);
     this.strength = new Float32Array(maxSegs * 4);
+    this.color = new Float32Array(maxSegs * 12);
     const idx = new Uint32Array(maxSegs * 6);
-    for (let s = 0; s < maxSegs; s++) idx.set([s * 4, s * 4 + 1, s * 4 + 2, s * 4 + 2, s * 4 + 1, s * 4 + 3], s * 6);
+    for (let s = 0; s < maxSegs; s++) idx.set([s * 4, s * 4 + 2, s * 4 + 1, s * 4 + 2, s * 4 + 3, s * 4 + 1], s * 6);   // wound to face up
     const g = new THREE.BufferGeometry();
     this.aPos = new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage);
     this.aBirth = new THREE.BufferAttribute(this.birth, 1).setUsage(THREE.DynamicDrawUsage);
     this.aStr = new THREE.BufferAttribute(this.strength, 1).setUsage(THREE.DynamicDrawUsage);
-    g.setAttribute('position', this.aPos); g.setAttribute('aBirth', this.aBirth); g.setAttribute('aStrength', this.aStr);
+    this.aCol = new THREE.BufferAttribute(this.color, 3).setUsage(THREE.DynamicDrawUsage);
+    g.setAttribute('position', this.aPos); g.setAttribute('aBirth', this.aBirth); g.setAttribute('aStrength', this.aStr); g.setAttribute('aColor', this.aCol);
+    this.attrs = [[this.aPos, 12], [this.aBirth, 4], [this.aStr, 4], [this.aCol, 12]];   // floats per segment
     g.setIndex(new THREE.BufferAttribute(idx, 1));
     this.material = new THREE.ShaderMaterial({
-      transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
       uniforms: { uTime: { value: 0 }, uLife: { value: life } },
       vertexShader: /* glsl */`
-        attribute float aBirth; attribute float aStrength;
+        attribute float aBirth; attribute float aStrength; attribute vec3 aColor;
         uniform float uTime, uLife;
-        varying float vA;
+        varying float vA; varying vec3 vColor;
         void main() {
-          vA = aStrength * clamp(1.0 - (uTime - aBirth) / uLife, 0.0, 1.0);
+          float age = clamp((uTime - aBirth) / uLife, 0.0, 1.0);
+          vA = aStrength * (1.0 - age) * (1.0 - age);
+          vColor = aColor;
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }`,
       fragmentShader: /* glsl */`
-        varying float vA;
-        void main() { gl_FragColor = vec4(0.01, 0.0, 0.02, vA); }`,
+        varying float vA; varying vec3 vColor;
+        void main() { gl_FragColor = vec4(vColor, vA); }`,
     });
     this.mesh = new THREE.Mesh(g, this.material);
     this.mesh.frustumCulled = false;
     scene.add(this.mesh);
   }
 
-  add(x0, z0, x1, z1, halfW, strength, time) {
+  add(x0, z0, x1, z1, halfW, strength, time, r = 0.3, g = 0.3, b = 0.3) {
     const dx = x1 - x0, dz = z1 - z0, len = Math.hypot(dx, dz);
     if (len < 1e-4) return;
     const px = -dz / len * halfW, pz = dx / len * halfW;
     const s = this.next; this.next = (this.next + 1) % this.max;
     const y = 0.045;
     this.pos.set([x0 + px, y, z0 + pz, x0 - px, y, z0 - pz, x1 + px, y, z1 + pz, x1 - px, y, z1 - pz], s * 12);
-    for (let k = 0; k < 4; k++) { this.birth[s * 4 + k] = time; this.strength[s * 4 + k] = strength; }
-    this.dirty = true;
+    for (let k = 0; k < 4; k++) { this.birth[s * 4 + k] = time; this.strength[s * 4 + k] = strength; this.color.set([r, g, b], s * 12 + k * 3); }
+    if (this.first < 0) this.first = s;
+    this.count++;
   }
 
   update(time) {
     this.material.uniforms.uTime.value = time;
-    if (this.dirty) { this.aPos.needsUpdate = true; this.aBirth.needsUpdate = true; this.aStr.needsUpdate = true; this.dirty = false; }
+    if (!this.count) return;
+    // upload only the slots written this frame (one run, or two when the ring wrapped)
+    const a = this.first, n = Math.min(this.count, this.max);
+    const runs = a + n <= this.max ? [[a, n]] : [[a, this.max - a], [0, a + n - this.max]];
+    for (const [attr, w] of this.attrs) {
+      for (const [from, len] of runs) attr.addUpdateRange(from * w, len * w);
+      attr.needsUpdate = true;
+    }
+    this.first = -1; this.count = 0;
   }
 }
 
@@ -2510,6 +2542,22 @@ class ChaseCamera {
     if (Math.abs(fov - this.fov) > 0.01) { this.fov = fov; this.cam.fov = fov; this.cam.updateProjectionMatrix(); }
   }
 
+  // race intro: swoop from high in front of the car round to the chase position while the lights
+  // count down. side (+1 = the car's left) keeps the swing over the open road, away from buildings.
+  intro(dt, pose, k, side = 1) {
+    const C = CONFIG.camera, e = smooth01(clamp(k, 0, 1));
+    const phi = (1 - e) * 2.1, dist = lerp(17, C.distance, e);          // phi: angle round from behind
+    const back = Math.cos(phi) * dist, lat = Math.sin(phi) * Math.min(dist, 9) * side;
+    const fx = Math.sin(pose.h), fz = Math.cos(pose.h);                  // forward; left is (fz, -fx)
+    this.cam.position.set(pose.x - fx * back + fz * lat, lerp(10, C.height, e * e), pose.z - fz * back - fx * lat);   // stays high, then drops in
+    const la = C.lookAhead * e;
+    this.look.set(pose.x + fx * la, lerp(0.8, C.lookHeight, e), pose.z + fz * la);
+    this.cam.lookAt(this.look);
+    if (this.cam.fov !== C.fov) { this.cam.fov = this.fov = C.fov; this.cam.updateProjectionMatrix(); }
+    this.yaw = pose.h;                                   // ends exactly where the chase cam starts
+    this.off.set(-fx * C.distance, C.height, -fz * C.distance);
+  }
+
   // attract mode for menus: a slow drone flight along the circuit
   flyover(dt, track) {
     if (this.droneS === undefined) { this.droneS = track.length - 60; this.droneLook = null; }
@@ -2545,9 +2593,13 @@ const MUSIC = {
 
 // Fake gearbox: rpm (0..1) climbs through each gear, then drops on the upshift.
 const GEARS = [0, 13, 23, 33, 44, 57, 90];
-function gearRpm(v) {
+function gearOf(v) {
   let g = 1;
   while (g < GEARS.length - 1 && v > GEARS[g]) g++;
+  return g;
+}
+function gearRpm(v) {
+  const g = gearOf(v);
   const r = clamp((v - GEARS[g - 1]) / (GEARS[g] - GEARS[g - 1]), 0, 1);
   return g === 1 ? 0.14 + 0.8 * r : 0.45 + 0.55 * r;
 }
@@ -2824,7 +2876,7 @@ const cssColor = (hex) => '#' + hex.toString(16).padStart(6, '0');
 
 const HUD = {
   el: $('hud'),
-  ids: ['posVal', 'posOf', 'lapVal', 'lapOf', 'totalTime', 'lapTime', 'bestTime', 'speedVal', 'centerMsg', 'subMsg', 'debug'],
+  ids: ['posVal', 'posOf', 'lapVal', 'lapOf', 'totalTime', 'lapTime', 'bestTime', 'speedVal', 'gearVal', 'centerMsg', 'subMsg', 'debug'],
   els: {}, cache: {},
   msg: null, standingsKey: '',
 
@@ -2832,6 +2884,17 @@ const HUD = {
     for (const id of this.ids) this.els[id] = $(id);
     this.bar = $('speedBar').firstElementChild; this.drift = $('driftTag'); this.standings = $('standings');
     this.meter = $('boostMeter'); this.segs = [...this.meter.querySelectorAll('div')]; this.flashEl = $('boostFlash');
+    // radial speed streaks, drawn once (the canvas stretches to the screen's shape)
+    this.lines = $('speedLines');
+    const g = this.lines.getContext('2d'), rand = mulberry32(31);
+    g.translate(512, 512);
+    for (let i = 0; i < 150; i++) {
+      const a = rand() * TAU, r0 = 300 + rand() * 200, len = 90 + rand() * 280, tint = ['255,255,255', '140,240,255', '255,150,235'][i % 3];
+      const grad = g.createLinearGradient(Math.cos(a) * r0, Math.sin(a) * r0, Math.cos(a) * (r0 + len), Math.sin(a) * (r0 + len));
+      grad.addColorStop(0, `rgba(${tint},0)`); grad.addColorStop(1, `rgba(${tint},0.6)`);
+      g.strokeStyle = grad; g.lineWidth = 1 + rand() * 2.5;
+      g.beginPath(); g.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); g.lineTo(Math.cos(a) * (r0 + len), Math.sin(a) * (r0 + len)); g.stroke();
+    }
   },
   // a tier was reached: pop the DRIFT tag
   pulse(tier) { this.drift.classList.remove('pop'); void this.drift.offsetWidth; this.drift.classList.add('pop'); },
@@ -2852,7 +2915,7 @@ const HUD = {
     this.toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
   },
   // big center message (countdown, GO!, FINAL LAP...) for a few seconds
-  flash(text, secs, cls = '', sub = '') { this.msg = { text, until: performance.now() + secs * 1000, cls, sub }; },
+  flash(text, secs, cls = '', sub = '', subCls = '') { this.msg = { text, until: performance.now() + secs * 1000, cls, sub, subCls }; },
 
   update(game, fps) {
     const car = game.player, race = game.race;
@@ -2896,16 +2959,23 @@ const HUD = {
     }
 
     // center message: timed flashes win; otherwise nag about driving the wrong way
-    let text = '', cls = '', sub = '';
+    let text = '', cls = '', sub = '', subCls = '';
     const counting = game.state === 'countdown' || (game.state === 'paused' && game.resumeState === 'countdown');
     if (counting) { const ready = game.countdown > 3; text = ready ? 'READY' : String(Math.max(1, Math.ceil(game.countdown))); cls = ready ? 'small' : 'count'; }
     else if (race.running && race.time < 0.9) { text = 'GO!'; cls = 'go'; }
     else if (game.resultsShown) text = '';
-    else if (this.msg && performance.now() < this.msg.until) ({ text, cls, sub } = this.msg);
+    else if (this.msg && performance.now() < this.msg.until) ({ text, cls, sub, subCls } = this.msg);
     else if (!e.finished && e.wrongWay > 1.2 && game.state === 'racing') { text = 'WRONG WAY'; cls = 'warn small'; sub = 'PRESS R TO RESET'; }
     this.set('centerMsg', text);
     this.els.centerMsg.className = text ? `show ${cls}` : '';
     this.set('subMsg', sub);
+    this.els.subMsg.className = subCls;
+    // speed lines: fade in above ~175 km/h, stronger while boosting
+    const rush = game.resultsShown ? 0 : clamp((Math.abs(p.fwd) * 3.6 - 175) / 90, 0, 1) * 0.35 + (p.boostTime > 0 ? 0.3 + p.boostTier * 0.08 : 0);
+    if (Math.abs(rush - (this.cache.rush || 0)) > 0.02 || (rush === 0 && this.cache.rush)) {
+      this.cache.rush = rush; this.lines.style.opacity = rush.toFixed(2); this.lines.style.visibility = rush > 0 ? 'visible' : 'hidden';
+    }
+    this.set('gearVal', p.fwd < -0.5 ? 'R' : String(gearOf(Math.abs(p.fwd))));
 
     if (!this.els.debug.classList.contains('hidden')) {
       this.set('debug',
@@ -2931,7 +3001,8 @@ class Car {
     this.prev = { x: 0, z: 0, h: 0 };
     this.pose = { x: 0, z: 0, h: 0 };              // interpolated render pose
     this.view = new CarView(color);
-    this.skid = [null, null];                       // last skid point per rear wheel
+    this.skid = [null, null];                       // last trail point per rear wheel
+    this.trail = new THREE.Color(color).multiplyScalar(0.42);   // neon drift-trail tint
     if (tag) this.view.addTag(name, color);         // floating name over other players' cars
     scene.add(this.view.root);
   }
@@ -3054,6 +3125,8 @@ const Game = {
     }
     this.cars.forEach((car, slot) => { const p = this.track.gridPose(slot); car.place(p.x, p.z, p.h); });
     this.player = this.carById(this.myId) || null;
+    // the intro swoop swings over the open road: toward the center line from the player's grid slot
+    this.introSide = this.player && this.track.locate(this.player.phys.x, this.player.phys.z, -1, {}).offset > 0 ? -1 : 1;
     this.race = new RaceTracker(this.track, this.cars, laps);
     this.race.external = this.mode === 'guest';              // guests take positions from the host
     this.race.onLap = (e, t) => this.onLap(e, t);
@@ -3237,8 +3310,13 @@ const Game = {
   onLap(e, lapTime) {
     if (e.car !== this.player) return;
     Sound.chime(e.lap === this.race.laps);
-    if (e.lap === this.race.laps) HUD.flash('FINAL LAP', 2.2, 'small', `LAP ${fmtTime(lapTime)}`);
-    else HUD.flash(`LAP ${e.lap}`, 1.8, 'small', fmtTime(lapTime));
+    // lap time plus the delta to your best earlier lap (green when it's a new best)
+    const prevBest = Math.min(...e.lapTimes.slice(0, -1));
+    const delta = Number.isFinite(prevBest) ? lapTime - prevBest : null;
+    const sub = delta === null ? fmtTime(lapTime)
+      : `${delta < 0 ? 'NEW BEST · ' : ''}${fmtTime(lapTime)} · ${delta < 0 ? '−' : '+'}${Math.abs(delta).toFixed(2)}`;
+    const final = e.lap === this.race.laps;
+    HUD.flash(final ? 'FINAL LAP' : `LAP ${e.lap}`, final ? 2.4 : 1.8, 'small', sub, delta === null ? '' : delta < 0 ? 'good' : 'bad');
   },
 
   onFinish(e) {
@@ -3267,8 +3345,12 @@ const Game = {
   refreshResults() {
     const race = this.race;
     if (!race) return;
+    const me = this.player && race.entry(this.player);
+    const head = $('resultsHead');
+    head.textContent = !me || !me.place ? '' : me.place === 1 ? 'YOU WIN!' : `${ORDINAL[me.place - 1]} PLACE`;
+    head.className = me && me.place === 1 ? 'win' : '';
     $('resultsTable').innerHTML = '<tr><th>POS</th><th>DRIVER</th><th>TIME</th><th>BEST LAP</th></tr>' +
-      race.order.map((e) => `<tr class="${e.car === this.player ? 'me' : ''}">
+      race.order.map((e) => `<tr class="${e.car === this.player ? 'me' : ''} p${e.place}">
         <td class="pos">${e.place}</td>
         <td><span class="swatch" style="background:${cssColor(e.car.color)};color:${cssColor(e.car.color)}"></span>${escapeHtml(e.car.name)}${e.car.human && e.car !== this.player && this.mode !== 'solo' ? ' <span class="dim">★</span>' : ''}</td>
         <td class="time">${e.finished ? fmtTime(e.finishTime) : `<span class="dim">LAP ${Math.min(e.lap, race.laps)}/${race.laps}…</span>`}</td>
@@ -3329,7 +3411,8 @@ const Game = {
     for (const car of cars) {
       car.savePrev();
       if (!car.simulated) { car.input.apply(car, netT, dt); continue; }
-      if (frozen) { car.ctl.throttle = 0; car.ctl.brake = 1; car.ctl.steer = 0; car.ctl.drift = false; }
+      // held on the grid with no pedals (the brake at a standstill would engage reverse)
+      if (frozen) { car.ctl.throttle = 0; car.ctl.brake = 0; car.ctl.steer = 0; car.ctl.drift = false; }
       else car.input.sample(car, dt, car.ctl);
       car.phys.step(car.ctl, dt);
     }
@@ -3389,7 +3472,9 @@ const Game = {
     Effects.update(dt);
     if (this.debugCam) { camera.position.fromArray(this.debugCam.pos); camera.lookAt(...this.debugCam.look); }
     else if (!this.player || this.state === 'title' || this.state === 'lobby') this.chase.flyover(dt, this.track);
-    else this.chase.update(dt, this.player.pose, this.player.phys);
+    else if (this.state === 'countdown' || (this.state === 'paused' && this.resumeState === 'countdown')) {
+      this.chase.intro(dt, this.player.pose, 1 - this.countdown / (this.goAt ? CONFIG.net.countdownMs / 1000 : 3), this.introSide);
+    } else this.chase.update(dt, this.player.pose, this.player.phys);
     sky.group.position.copy(camera.position);
     sky.sunMat.uniforms.uTime.value = performance.now() / 1000;
   },
@@ -3463,7 +3548,11 @@ const Game = {
         const last = car.skid[k];
         if (last) {
           const d = Math.hypot(w.x - last.x, w.z - last.z);
-          if (d > 0.35) { Effects.skids.add(last.x, last.z, w.x, w.z, 0.14, clamp(Math.abs(p.lat) / 12, 0.25, 0.7), Effects.time); car.skid[k] = { x: w.x, z: w.z }; }
+          if (d > 0.35) {
+            const c = car.trail, k2 = clamp(Math.abs(p.lat) / 12, 0.3, 0.85);
+            Effects.skids.add(last.x, last.z, w.x, w.z, 0.13, k2, Effects.time, c.r, c.g, c.b);
+            car.skid[k] = { x: w.x, z: w.z };
+          }
         } else car.skid[k] = { x: w.x, z: w.z };
         if (Math.random() < dt * 40) {
           Effects.smoke.spawn(w.x, 0.25, w.z, -p.vx * 0.12 + (Math.random() - 0.5), 0.6 + Math.random() * 0.8, -p.vz * 0.12 + (Math.random() - 0.5),
@@ -3582,7 +3671,7 @@ requestAnimationFrame(frame);
 
 window.__dwBooted = true;
 // Handy for tuning from the browser console, e.g.  __dw.CONFIG.car.driftGrip = 2.5
-window.__dw = { CONFIG, Game, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles, Effects, Sound, Net, AIInput };
+window.__dw = { CONFIG, Game, HUD, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles, Effects, Sound, Net, AIInput };
 </script>
 </body>
 </html>

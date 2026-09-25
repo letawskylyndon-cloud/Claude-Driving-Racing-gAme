@@ -36,6 +36,21 @@ Every handling value lives in the `CONFIG` object at the top of the script in `i
 Press ` in game to edit them live, then copy the values you like back into the file.
 You can also poke them from the browser console, e.g. `__dw.CONFIG.car.driftGrip = 2.5`.
 
+The ones worth trying first:
+
+| Value | What it changes |
+| --- | --- |
+| `car.grip` / `car.driftGrip` | how planted the car is / how wide and floaty drifts are |
+| `car.driftYawRate`, `car.driftKick` | how hard the car rotates when drifting and when a drift starts |
+| `car.steerRate`, `car.steerSpeedFalloff` | turn-in at low speed and how much steering calms down at speed |
+| `car.topSpeed`, `car.accel` | pace and punch |
+| `car.boostTierTimes`, `car.boostStrength` | how long to drift for each boost tier and how big the boosts are |
+| `car.wallScrape`, `car.wallGripLoss` | how much a wall hit costs you |
+| `camera.distance`, `camera.driftSwing`, `camera.fovSpeed` | chase cam feel |
+| `ai.difficulty`, `ai.rubberBand` | opponent pace and how much they bunch up around you |
+| `race.laps` | race length |
+| `render.maxPixelRatio`, `render.bloomStrength` | performance vs sharpness, and neon glow |
+
 ## Status
 
 - [x] Milestone 1 — handling model, chase cam, test arena
@@ -44,4 +59,4 @@ You can also poke them from the browser console, e.g. `__dw.CONFIG.car.driftGrip
 - [x] Milestone 4 — drift boost
 - [x] Milestone 5 — audio
 - [x] Milestone 6 — online multiplayer
-- [ ] Milestone 7 — polish
+- [x] Milestone 7 — polish
