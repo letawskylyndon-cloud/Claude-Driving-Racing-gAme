@@ -23,7 +23,7 @@ You can also poke them from the browser console, e.g. `__dw.CONFIG.car.driftGrip
 - [x] Milestone 1 — handling model, chase cam, test arena
 - [x] Milestone 2 — track and city
 - [x] Milestone 3 — AI, laps, positions, race flow, HUD
-- [ ] Milestone 4 — drift boost
+- [x] Milestone 4 — drift boost
 - [ ] Milestone 5 — audio
 - [ ] Milestone 6 — online multiplayer
 - [ ] Milestone 7 — polish
