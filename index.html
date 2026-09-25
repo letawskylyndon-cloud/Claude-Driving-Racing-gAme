@@ -59,9 +59,6 @@
   #boostMeter div.full { border-color: var(--t); box-shadow: 0 0 12px var(--t); }
   #boostMeter.boosting div { animation: meterPulse .18s linear infinite alternate; }
   @keyframes meterPulse { from { filter: brightness(1); } to { filter: brightness(1.8); } }
-  #speedLines { position: absolute; left: -8%; top: -8%; width: 116%; height: 116%; opacity: 0; visibility: hidden; mix-blend-mode: screen;
-    animation: speedRush .2s linear infinite; }
-  @keyframes speedRush { from { transform: scale(1); } to { transform: scale(1.07); } }
   #hudBack { position: absolute; left: 0; top: 0; width: 330px; height: 330px; background: radial-gradient(ellipse at 0 0, rgba(6,2,16,.62), rgba(6,2,16,0) 70%); }
   #hudBackR { position: absolute; right: 0; top: 0; width: 360px; height: 190px; background: radial-gradient(ellipse at 100% 0, rgba(6,2,16,.6), rgba(6,2,16,0) 70%); }
   #hudBackS { position: absolute; right: 0; bottom: 0; width: 420px; height: 240px; background: radial-gradient(ellipse at 100% 100%, rgba(6,2,16,.6), rgba(6,2,16,0) 70%); }
@@ -181,7 +178,6 @@
     <div id="boostMeter"><span>BOOST</span><div><i></i></div><div><i></i></div><div><i></i></div></div>
   </div>
   <div id="boostFlash"></div>
-  <canvas id="speedLines" width="1024" height="1024"></canvas>
   <div id="debug" class="hidden"></div>
   <div id="help"><b>W/↑</b> gas · <b>S/↓</b> brake/reverse · <b>A/D ←/→</b> steer · <b>SPACE</b> drift · <b>R</b> reset · <b>ESC</b> pause</div>
 </div>
@@ -1221,6 +1217,47 @@ const Effects = {
   },
 };
 const _v2 = new THREE.Vector2();
+
+// Speed lines: radial streaks on a ring held just in front of the camera and stretched to the
+// screen's shape. Drawn in WebGL (not as a CSS layer over the canvas) so they cost one quad.
+const SpeedLines = {
+  t: 0, fx: 1, fy: 1,
+  init() {
+    const [c, g] = makeCanvas(1024, 1024), rand = mulberry32(31);
+    g.translate(512, 512);
+    for (let i = 0; i < 150; i++) {
+      const a = rand() * TAU, r0 = 300 + rand() * 200, len = 90 + rand() * 280, tint = ['255,255,255', '140,240,255', '255,150,235'][i % 3];
+      const grad = g.createLinearGradient(Math.cos(a) * r0, Math.sin(a) * r0, Math.cos(a) * (r0 + len), Math.sin(a) * (r0 + len));
+      grad.addColorStop(0, `rgba(${tint},0)`); grad.addColorStop(1, `rgba(${tint},0.6)`);
+      g.strokeStyle = grad; g.lineWidth = 1 + rand() * 2.5;
+      g.beginPath(); g.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); g.lineTo(Math.cos(a) * (r0 + len), Math.sin(a) * (r0 + len)); g.stroke();
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    // the streaks start 0.59 of the way out, so the middle of the screen is left uncovered
+    const geo = new THREE.RingGeometry(0.55, 1.25, 48, 1), pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, (pos.getX(i) + 1) / 2, (pos.getY(i) + 1) / 2);   // texture spans ±1
+    this.mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending,
+      depthTest: false, depthWrite: false, fog: false, side: THREE.DoubleSide });
+    this.mesh = new THREE.Mesh(geo, this.mat);
+    this.mesh.renderOrder = 10; this.mesh.frustumCulled = false; this.mesh.visible = false;
+    scene.add(this.mesh);
+  },
+  // amount 0..1; call after the camera has moved this frame
+  update(dt, amount) {
+    this.mesh.visible = amount > 0.005;
+    if (!this.mesh.visible) return;
+    this.t += dt / 0.2;                                  // rush outward, then a fresh (mirrored) pattern
+    if (this.t >= 1) { this.t %= 1; this.fx = Math.random() < 0.5 ? -1 : 1; this.fy = Math.random() < 0.5 ? -1 : 1; }
+    this.mat.opacity = amount;
+    const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * 1.16 * (1 + 0.07 * this.t);
+    this.mesh.position.copy(camera.position);
+    this.mesh.quaternion.copy(camera.quaternion);
+    this.mesh.translateZ(-1);
+    this.mesh.scale.set(hh * camera.aspect * this.fx, hh * this.fy, 1);
+  },
+};
+SpeedLines.init();
 
 // =====================================================================
 // GEOMETRY BATCHING — many quads/boxes merged into one mesh (one draw call)
@@ -2884,17 +2921,6 @@ const HUD = {
     for (const id of this.ids) this.els[id] = $(id);
     this.bar = $('speedBar').firstElementChild; this.drift = $('driftTag'); this.standings = $('standings');
     this.meter = $('boostMeter'); this.segs = [...this.meter.querySelectorAll('div')]; this.flashEl = $('boostFlash');
-    // radial speed streaks, drawn once (the canvas stretches to the screen's shape)
-    this.lines = $('speedLines');
-    const g = this.lines.getContext('2d'), rand = mulberry32(31);
-    g.translate(512, 512);
-    for (let i = 0; i < 150; i++) {
-      const a = rand() * TAU, r0 = 300 + rand() * 200, len = 90 + rand() * 280, tint = ['255,255,255', '140,240,255', '255,150,235'][i % 3];
-      const grad = g.createLinearGradient(Math.cos(a) * r0, Math.sin(a) * r0, Math.cos(a) * (r0 + len), Math.sin(a) * (r0 + len));
-      grad.addColorStop(0, `rgba(${tint},0)`); grad.addColorStop(1, `rgba(${tint},0.6)`);
-      g.strokeStyle = grad; g.lineWidth = 1 + rand() * 2.5;
-      g.beginPath(); g.moveTo(Math.cos(a) * r0, Math.sin(a) * r0); g.lineTo(Math.cos(a) * (r0 + len), Math.sin(a) * (r0 + len)); g.stroke();
-    }
   },
   // a tier was reached: pop the DRIFT tag
   pulse(tier) { this.drift.classList.remove('pop'); void this.drift.offsetWidth; this.drift.classList.add('pop'); },
@@ -2970,11 +2996,6 @@ const HUD = {
     this.els.centerMsg.className = text ? `show ${cls}` : '';
     this.set('subMsg', sub);
     this.els.subMsg.className = subCls;
-    // speed lines: fade in above ~175 km/h, stronger while boosting
-    const rush = game.resultsShown ? 0 : clamp((Math.abs(p.fwd) * 3.6 - 175) / 90, 0, 1) * 0.35 + (p.boostTime > 0 ? 0.3 + p.boostTier * 0.08 : 0);
-    if (Math.abs(rush - (this.cache.rush || 0)) > 0.02 || (rush === 0 && this.cache.rush)) {
-      this.cache.rush = rush; this.lines.style.opacity = rush.toFixed(2); this.lines.style.visibility = rush > 0 ? 'visible' : 'hidden';
-    }
     this.set('gearVal', p.fwd < -0.5 ? 'R' : String(gearOf(Math.abs(p.fwd))));
 
     if (!this.els.debug.classList.contains('hidden')) {
@@ -3475,6 +3496,10 @@ const Game = {
     else if (this.state === 'countdown' || (this.state === 'paused' && this.resumeState === 'countdown')) {
       this.chase.intro(dt, this.player.pose, 1 - this.countdown / (this.goAt ? CONFIG.net.countdownMs / 1000 : 3), this.introSide);
     } else this.chase.update(dt, this.player.pose, this.player.phys);
+    // speed lines fade in above ~175 km/h and while boosting
+    const p = this.player && this.player.phys;
+    const live = p && (this.state === 'racing' || this.state === 'finished') && !this.resultsShown && !this.debugCam;
+    SpeedLines.update(dt, live ? clamp((Math.abs(p.fwd) * 3.6 - 175) / 90, 0, 1) * 0.35 + (p.boostTime > 0 ? 0.3 + p.boostTier * 0.08 : 0) : 0);
     sky.group.position.copy(camera.position);
     sky.sunMat.uniforms.uTime.value = performance.now() / 1000;
   },
@@ -3671,7 +3696,7 @@ requestAnimationFrame(frame);
 
 window.__dwBooted = true;
 // Handy for tuning from the browser console, e.g.  __dw.CONFIG.car.driftGrip = 2.5
-window.__dw = { CONFIG, Game, HUD, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles, Effects, Sound, Net, AIInput };
+window.__dw = { CONFIG, Game, HUD, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles, Effects, SpeedLines, Sound, Net, AIInput };
 </script>
 </body>
 </html>
