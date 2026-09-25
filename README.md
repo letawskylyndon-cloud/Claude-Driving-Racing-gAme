@@ -8,7 +8,7 @@ Double-click `index.html` (or open it in Chrome, Edge, Firefox or Safari). An in
 connection is needed the first time so the browser can fetch three.js from the jsDelivr CDN.
 
 **Controls:** W/↑ accelerate · S/↓ brake & reverse · A/D or ←/→ steer · hold Space while
-turning to drift · R reset · Esc pause · ` (backquote) live tuning panel
+turning to drift, release to boost · R reset · M mute · Esc pause · ` (backquote) live tuning panel
 
 Enter your driver name, pick **Solo Race** (or press Enter) and race 5 AI cars over 3 laps.
 
@@ -24,6 +24,6 @@ You can also poke them from the browser console, e.g. `__dw.CONFIG.car.driftGrip
 - [x] Milestone 2 — track and city
 - [x] Milestone 3 — AI, laps, positions, race flow, HUD
 - [x] Milestone 4 — drift boost
-- [ ] Milestone 5 — audio
+- [x] Milestone 5 — audio
 - [ ] Milestone 6 — online multiplayer
 - [ ] Milestone 7 — polish
