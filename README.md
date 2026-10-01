@@ -12,7 +12,21 @@ the jsDelivr CDN.
 turning to drift, release to boost · R reset · M mute · Esc pause (online: menu, the race keeps
 running) · ` (backquote) live tuning panel
 
-Enter your driver name, pick **Solo Race** (or press Enter) and race 5 AI cars over 3 laps.
+Enter your driver name, pick a track with the ◀ ▶ arrows, then **Solo Race** (or press Enter)
+and race 5 AI cars over 3 laps.
+
+**Tracks:** each has its own street layout, sky and neon colors. Your best lap on each one is
+saved as a track record in this browser.
+
+| Track | Character |
+| --- | --- |
+| NEON CIRCUIT | long straights, square corners and two fast sweepers (2.0 km, night) |
+| SUNSET STRIP | flat-out sweepers and a long U-turn at the far end (2.6 km, dusk) |
+| MIDNIGHT GRID | a technical zig-zag through the downtown blocks (2.3 km, deep blue under a moon) |
+
+**Garage:** on the title screen, **GARAGE** lets you pick a body (VECTOR, BRUISER or PHANTOM),
+a paint color and an underglow color, which also colors your drift trails. It's looks only:
+every body has the same size and handling. Your car is saved for next time.
 
 **Slow laptop?** Graphics are set to **AUTO** by default. The game starts from a guess based
 on your graphics chip, then steps down through HIGH → MEDIUM → LOW → POTATO whenever the frame
@@ -26,8 +40,12 @@ or in the pause menu; cycling back to AUTO re-runs the calibration.
 1. One player picks **Host Online**. A 5-character room code appears in the lobby
    (codes never use O, 0, I, 1 or L, so they're easy to read out).
 2. Friends pick **Join Online** and type the code.
-3. Everyone gets their own neon color; AI cars fill the rest of the 6-car grid. Only the
-   host can start the race, and after the results the host can start a **Rematch**.
+3. Everyone races the car from their own garage; AI cars fill the rest of the 6-car grid.
+   The host picks the track in the lobby (friends see it switch), only the host can start
+   the race, and after the results the host can start a **Rematch**.
+
+Everyone needs the same version of `index.html`: a friend with an older copy is told the room
+runs a different version.
 
 Connections go peer-to-peer (WebRTC) and are matched through the free public PeerJS server.
 Some strict networks (school, office, public Wi-Fi) block direct connections — if joining
@@ -68,3 +86,5 @@ The ones worth trying first:
 - [x] Milestone 5 — audio
 - [x] Milestone 6 — online multiplayer
 - [x] Milestone 7 — polish
+- [x] Low-end laptop performance (graphics presets)
+- [x] More tracks and car customization

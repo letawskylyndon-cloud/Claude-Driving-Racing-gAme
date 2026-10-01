@@ -99,6 +99,27 @@
   .btn.alt { border-color: var(--cyan); background: rgba(25,240,255,.1); text-shadow: 0 0 8px var(--cyan); box-shadow: 0 0 14px rgba(25,240,255,.5), inset 0 0 14px rgba(25,240,255,.3); }
   .btn.alt:hover { background: rgba(25,240,255,.28); }
   .hint { margin-top: 16px; font-size: 13px; letter-spacing: 2px; color: rgba(220,200,255,.7); }
+  .trackPick { display: flex; gap: 12px; align-items: center; justify-content: center; margin: 18px auto 0; }
+  .trackPick label { font: 700 12px var(--ui); letter-spacing: 4px; color: var(--cyan); text-shadow: 0 0 6px var(--cyan); }
+  .trackInfo { width: 250px; }
+  .trackInfo b { display: block; font: italic 900 21px var(--display); letter-spacing: 3px; color: #fff; text-shadow: 0 0 8px var(--pink), 0 0 20px var(--pink); }
+  .trackInfo small { display: block; margin-top: 3px; font: 700 10px var(--ui); letter-spacing: 3px; color: rgba(220,200,255,.75); }
+  .arrow { pointer-events: auto; width: 34px; height: 34px; font: 900 13px var(--ui); color: #fff; background: rgba(25,240,255,.1); border: 1px solid var(--cyan);
+    box-shadow: 0 0 10px rgba(25,240,255,.35); cursor: pointer; }
+  .arrow:hover, .arrow:focus-visible { background: rgba(25,240,255,.3); outline: none; }
+  .trackPick.locked .arrow { visibility: hidden; }
+  .opt.big { margin-right: 10px; padding: 7px 22px; font-size: 13px; color: #fff; border-color: var(--pink); background: rgba(255,43,214,.16); box-shadow: 0 0 12px rgba(255,43,214,.45); }
+  .opt.big:hover, .opt.big:focus-visible { background: rgba(255,43,214,.36); }
+  .overlay.clear { background: linear-gradient(90deg, rgba(5,2,14,.85), rgba(5,2,14,.55) 400px, rgba(5,2,14,0) 660px); }
+  .overlay.clear::before { display: none; }
+  .panel.side { margin: auto auto auto 3vw; max-width: 410px; padding: 22px 26px; }
+  .gRow { margin-top: 18px; }
+  .gRow > label { display: block; margin-bottom: 9px; font: 700 12px var(--ui); letter-spacing: 4px; color: var(--cyan); text-shadow: 0 0 6px var(--cyan); }
+  .pick { display: flex; gap: 12px; align-items: center; justify-content: center; }
+  .swatches { display: grid; grid-template-columns: repeat(6, 34px); gap: 9px; justify-content: center; }
+  .swatches button { pointer-events: auto; width: 34px; height: 34px; padding: 0; background: var(--c); border: 2px solid rgba(255,255,255,.2);
+    box-shadow: 0 0 9px var(--c); cursor: pointer; transition: transform .1s; }
+  .swatches button.on { border-color: #fff; box-shadow: 0 0 4px #fff, 0 0 16px var(--c); transform: scale(1.15); }
   .opt { pointer-events: auto; margin: 16px auto 0; padding: 5px 14px; font: 700 12px var(--ui); letter-spacing: 3px; color: #e4d6ff;
     background: rgba(163,91,255,.12); border: 1px solid rgba(163,91,255,.7); cursor: pointer; }
   .opt:hover, .opt:focus-visible { background: rgba(163,91,255,.32); color: #fff; outline: none; }
@@ -135,6 +156,7 @@
   #lobbyPlayers i { width: 14px; height: 14px; background: var(--c); box-shadow: 0 0 10px var(--c); }
   #lobbyPlayers small { margin-left: auto; font: 700 10px var(--ui); letter-spacing: 3px; color: var(--cyan); }
   #lobbyPlayers small + small { margin-left: 8px; }
+  #lobbyPlayers small.car { color: rgba(220,200,255,.65); }
   .field input.code { width: 200px; text-align: center; letter-spacing: 10px; font-family: var(--mono); font-style: normal; }
   #toast { position: fixed; left: 50%; top: 44px; transform: translateX(-50%); z-index: 16; padding: 6px 16px; font: 700 13px var(--ui); letter-spacing: 3px; color: #fff; white-space: nowrap;
     background: rgba(10,4,24,.8); border: 1px solid var(--cyan); box-shadow: 0 0 12px rgba(25,240,255,.4); opacity: 0; transition: opacity .3s; pointer-events: none; }
@@ -190,12 +212,15 @@
     <h1 class="logo">DRIFTWAVE</h1>
     <div class="tagline">NEON STREET RACING</div>
     <div class="field"><label for="nameInput">DRIVER</label><input id="nameInput" maxlength="12" spellcheck="false" autocomplete="off" /></div>
+    <div class="trackPick"><label>TRACK</label><button class="arrow trackPrev" aria-label="previous track">◀</button>
+      <div class="trackInfo"><b class="trackName">NEON CIRCUIT</b><small class="trackMeta"></small></div>
+      <button class="arrow trackNext" aria-label="next track">▶</button></div>
     <div class="menu">
       <button class="btn" id="soloBtn">SOLO RACE</button>
       <button class="btn alt" id="hostBtn">HOST ONLINE</button>
       <button class="btn alt" id="joinBtn">JOIN ONLINE</button>
     </div>
-    <div><button class="opt gfxBtn">GRAPHICS: AUTO</button></div>
+    <div><button class="opt big" id="garageBtn">GARAGE</button><button class="opt gfxBtn">GRAPHICS: AUTO</button></div>
     <p class="note" id="menuMsg"></p>
     <div class="keys">
       <b>W / ↑</b><span>accelerate</span>
@@ -208,6 +233,21 @@
     </div>
     <p class="note hidden" id="loadError"></p>
     <div class="hint" id="loadHint">3 LAPS · 6 CARS · PRESS ENTER FOR A SOLO RACE</div>
+  </div>
+</div>
+
+<div id="garageScreen" class="overlay clear hidden">
+  <div class="panel side">
+    <h1 class="logo" style="font-size:56px">GARAGE</h1>
+    <div class="gRow"><label>BODY</label>
+      <div class="pick"><button class="arrow" id="styPrev" aria-label="previous body">◀</button>
+        <div class="trackInfo"><b id="styName">VECTOR</b><small id="styBlurb"></small></div>
+        <button class="arrow" id="styNext" aria-label="next body">▶</button></div></div>
+    <div class="gRow"><label>PAINT</label><div class="swatches" id="paintSw"></div></div>
+    <div class="gRow"><label>UNDERGLOW &amp; TRAILS</label><div class="swatches" id="glowSw"></div></div>
+    <p class="note">Looks only: every body drives the same.</p>
+    <button class="btn" id="garageDone">DONE</button>
+    <div class="hint">ENTER OR ESC TO GO BACK</div>
   </div>
 </div>
 
@@ -256,6 +296,9 @@
     <h1 class="logo" style="font-size:64px">LOBBY</h1>
     <div class="roomCode"><label>ROOM CODE</label><b id="roomCode">-----</b></div>
     <p class="note">Friends pick <b>JOIN ONLINE</b> and type this code. Up to 4 players.</p>
+    <div class="trackPick" id="lobbyTrack"><label>TRACK</label><button class="arrow trackPrev" aria-label="previous track">◀</button>
+      <div class="trackInfo"><b class="trackName">NEON CIRCUIT</b><small class="trackMeta"></small></div>
+      <button class="arrow trackNext" aria-label="next track">▶</button></div>
     <div id="lobbyPlayers"></div>
     <div>
       <button class="btn" id="startOnlineBtn">START RACE</button>
@@ -363,8 +406,7 @@ const CONFIG = {
     quality: 'auto',          // 'auto', or force 'HIGH' / 'MEDIUM' / 'LOW' / 'POTATO' (also in the menus)
     maxPixelRatio: 1.25,      // resolution cap on HIGH quality; raise for extra crispness on fast GPUs
     bloomStrength: 0.7, bloomRadius: 0.42, bloomThreshold: 1.0,
-    exposure: 1.05,
-    fogColor: 0x2b0f4c, fogDensity: 0.0021,
+    exposure: 1.05,                // fog and sky colors belong to each track (THEMES in the SKY section)
   },
   race: { laps: 3, gridSize: 6 },
   ai: {
@@ -380,7 +422,6 @@ const CONFIG = {
     joinTimeout: 12,          // seconds before a join attempt gives up
     timeout: 10,              // seconds of silence before a peer counts as gone
   },
-  colors: [0xff2bd6, 0x19f0ff, 0x7dff3a, 0xffa12e, 0xa35bff, 0xffe83a], // one neon color per racer
 };
 
 const SIM_HZ = 120;
@@ -433,9 +474,9 @@ renderer.toneMappingExposure = CONFIG.render.exposure;
 const MAX_ANISO = renderer.capabilities.getMaxAnisotropy();
 
 const scene = new THREE.Scene();
-const FOG_COLOR = new THREE.Color(CONFIG.render.fogColor);
-scene.background = FOG_COLOR.clone();
-scene.fog = new THREE.FogExp2(FOG_COLOR, CONFIG.render.fogDensity);
+const FOG_COLOR = new THREE.Color();      // horizon / fog color, set per track by applyTheme()
+scene.background = FOG_COLOR;
+scene.fog = new THREE.FogExp2(0x000000, 0.002);
 
 const camera = new THREE.PerspectiveCamera(CONFIG.camera.fov, window.innerWidth / window.innerHeight, 0.3, 5000);
 
@@ -607,16 +648,38 @@ const TEX = {};
 // =====================================================================
 // SKY — gradient dome, stars, striped synthwave sun (follows the camera)
 // =====================================================================
-const SKY_TOP = new THREE.Color(0x06021a);
-const SKY_MID = new THREE.Color(0x1f0b4a);
-const SUN_DIR = new THREE.Vector3(1, 0.1, 0.22).normalize();  // the sun sits on the horizon in the east, over the main straight
+const SKY_TOP = new THREE.Color(), SKY_MID = new THREE.Color(), SKY_GLOW = new THREE.Color();
+const SUN_DIR = new THREE.Vector3(1, 0.1, 0.22).normalize();
+
+// Each circuit's look: sky gradient, fog, a horizon glow, the sun (or a moon) and its neon colors.
+// Sun colors are linear RGB; everything else is a hex color.
+const THEMES = {
+  night: {
+    top: 0x06021a, mid: 0x1f0b4a, fog: 0x2b0f4c, fogDensity: 0.0021, glow: 0xff3aa8, halo: 0xff2f9a,
+    sun: { dir: [1, 0.1, 0.22], size: 760, top: [1, 0.86, 0.32], bottom: [1, 0.1, 0.55], stripes: true },
+    edge: [0x19f0ff, 0xff2bd6],                                        // road edge lines: left, right
+    neon: [[0xff2bd6, 1.8], [0x19f0ff, 1.8], [0xa35bff, 1.8], [0xff2bd6, 1.8], [0x19f0ff, 1.8], [0xffa12e, 1.6], [0x7dff3a, 1.25]],
+  },
+  sunset: {
+    top: 0x150630, mid: 0x5a1450, fog: 0x6a2045, fogDensity: 0.0018, glow: 0xff6a2a, halo: 0xff5a20,
+    sun: { dir: [1, 0.16, 0.05], size: 1150, top: [1, 0.92, 0.45], bottom: [1, 0.3, 0.12], stripes: true },
+    edge: [0xffa12e, 0xff2bd6],
+    neon: [[0xffa12e, 1.6], [0xff2bd6, 1.8], [0xffe83a, 1.3], [0xff5a3a, 1.6], [0xa35bff, 1.8], [0xff2bd6, 1.8], [0x19f0ff, 1.5]],
+  },
+  midnight: {
+    top: 0x010208, mid: 0x061235, fog: 0x0a1838, fogDensity: 0.0026, glow: 0x2a6bff, halo: 0x3a7bff,
+    sun: { dir: [-0.75, 0.3, -0.55], size: 300, top: [0.85, 0.9, 1], bottom: [0.55, 0.66, 1], stripes: false },   // a moon
+    edge: [0x19f0ff, 0x7a5bff],
+    neon: [[0x19f0ff, 1.8], [0x2a6bff, 2.0], [0xa35bff, 1.8], [0x19f0ff, 1.8], [0xe8f0ff, 1.2], [0x7dff3a, 1.25], [0xff2bd6, 1.6]],
+  },
+};
 
 function makeSkyMaterial() {
   return new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
     uniforms: {
       uTop: { value: SKY_TOP }, uMid: { value: SKY_MID }, uHorizon: { value: FOG_COLOR },
-      uGlow: { value: new THREE.Color(0xff3aa8) }, uSunDir: { value: SUN_DIR },
+      uGlow: { value: SKY_GLOW }, uSunDir: { value: SUN_DIR },
     },
     vertexShader: /* glsl */`
       varying vec3 vDir;
@@ -663,53 +726,61 @@ function buildSky() {
   // the big striped sun
   const sunMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, fog: false,
-    uniforms: { uTime: { value: 0 } },
+    uniforms: { uTime: { value: 0 }, uTop: { value: new THREE.Color() }, uBot: { value: new THREE.Color() }, uStripes: { value: 1 } },
     vertexShader: /* glsl */`
       varying vec2 vUv;
       void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */`
-      uniform float uTime;
+      uniform float uTime, uStripes;
+      uniform vec3 uTop, uBot;
       varying vec2 vUv;
       void main() {
         vec2 p = vUv * 2.0 - 1.0;
         float r = length(p);
         float disc = 1.0 - smoothstep(0.985, 1.0, r);
         float cut = 1.0;
-        if (p.y < 0.28) {                                // stripes, thicker toward the bottom
+        if (uStripes > 0.5 && p.y < 0.28) {              // stripes, thicker toward the bottom
           float t = clamp((0.28 - p.y) / 1.28, 0.0, 1.0);
           float f = fract(p.y * 7.5 + uTime * 0.12);
           float w = fwidth(p.y * 7.5) * 1.5;
           cut = smoothstep(t * 0.9 - w, t * 0.9 + w, f);
         }
-        vec3 top = vec3(1.0, 0.86, 0.32), bot = vec3(1.0, 0.1, 0.55);
-        vec3 col = mix(bot, top, smoothstep(-0.85, 0.9, p.y));
+        vec3 col = mix(uBot, uTop, smoothstep(-0.85, 0.9, p.y));
         float a = disc * cut;
         if (a < 0.003) discard;
         gl_FragColor = vec4(col * 0.92, a);
       }`,
   });
-  const sun = new THREE.Mesh(new THREE.PlaneGeometry(760, 760), sunMat);
-  sun.position.copy(SUN_DIR).multiplyScalar(2000).add(new THREE.Vector3(0, 150, 0));
-  sun.lookAt(0, sun.position.y, 0);
+  const sun = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), sunMat);   // placed and sized by placeSun()
   sun.renderOrder = -8;
   group.add(sun);
 
-  const halo = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), new THREE.MeshBasicMaterial({
-    map: TEX.radial, color: new THREE.Color(0xff2f9a).multiplyScalar(0.22), transparent: true,
-    blending: THREE.AdditiveBlending, depthWrite: false, fog: false,
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({
+    map: TEX.radial, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false,
   }));
-  halo.position.copy(sun.position).multiplyScalar(1.01);
-  halo.lookAt(0, halo.position.y, 0);
   halo.renderOrder = -9;
   group.add(halo);
 
   scene.add(group);
-  return { group, sunMat };
+  // a theme's sun (or moon): direction, size, colors, stripes, and the soft halo behind it
+  const placeSun = (T) => {
+    sun.position.copy(SUN_DIR).multiplyScalar(2000).add(new THREE.Vector3(0, 150, 0));
+    sun.lookAt(0, sun.position.y, 0);
+    sun.scale.set(T.sun.size, T.sun.size, 1);
+    sunMat.uniforms.uTop.value.setRGB(...T.sun.top);
+    sunMat.uniforms.uBot.value.setRGB(...T.sun.bottom);
+    sunMat.uniforms.uStripes.value = T.sun.stripes ? 1 : 0;
+    halo.position.copy(sun.position).multiplyScalar(1.01);
+    halo.lookAt(0, halo.position.y, 0);
+    halo.scale.set(T.sun.size * 2, T.sun.size * 2, 1);
+    halo.material.color.set(T.halo).multiplyScalar(0.22);
+  };
+  return { group, sunMat, placeSun };
 }
 const sky = buildSky();
 
 // Environment map for glossy reflections (car paint, wet-looking ground): sky gradient plus a few neon panels.
-function buildEnvironment() {
+function buildEnvironment(T) {
   const envScene = new THREE.Scene();
   envScene.add(new THREE.Mesh(new THREE.SphereGeometry(50, 32, 16), makeSkyMaterial()));
   const panel = (hex, k, x, y, z, w, h) => {
@@ -717,17 +788,30 @@ function buildEnvironment() {
     m.position.set(x, y, z); m.lookAt(0, 0, 0);
     envScene.add(m);
   };
-  panel(0xff2bd6, 2.5, 34, 6, 18, 18, 3);
-  panel(0x19f0ff, 2.5, -30, 8, -22, 20, 3);
-  panel(0xa35bff, 2.0, -12, 5, 36, 14, 2.5);
-  panel(0xffa12e, 1.6, 22, 12, -34, 10, 4);
+  panel(T.edge[1], 2.5, 34, 6, 18, 18, 3);
+  panel(T.edge[0], 2.5, -30, 8, -22, 20, 3);
+  panel(T.neon[2][0], 2.0, -12, 5, 36, 14, 2.5);
+  panel(T.neon[5][0], 1.6, 22, 12, -34, 10, 4);
   panel(0xffffff, 1.2, 0, 45, 0, 30, 30);
   const pmrem = new THREE.PMREMGenerator(renderer);
   const tex = pmrem.fromScene(envScene, 0.035).texture;
   pmrem.dispose();
+  envScene.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); });
   return tex;
 }
-scene.environment = buildEnvironment();
+
+// Switch the sky, fog, sun and reflections to a track's theme. Each theme's reflection map is
+// rendered once and kept, so switching back to a track is quick.
+const ENV_MAPS = new Map();
+function applyTheme(T) {
+  SKY_TOP.set(T.top); SKY_MID.set(T.mid); SKY_GLOW.set(T.glow);
+  FOG_COLOR.set(T.fog);
+  scene.fog.color.copy(FOG_COLOR); scene.fog.density = T.fogDensity;
+  SUN_DIR.set(...T.sun.dir).normalize();
+  sky.placeSun(T);
+  if (!ENV_MAPS.has(T)) ENV_MAPS.set(T, buildEnvironment(T));
+  scene.environment = ENV_MAPS.get(T);
+}
 
 // =====================================================================
 // INPUT SOURCES — every car is driven by one of these. Each sim tick the
@@ -1005,8 +1089,41 @@ function collideCars(a, b, moveA = true, moveB = true, softness = 0) {
 // =====================================================================
 // CAR VISUALS — low-poly sports car from simple shapes, neon trim, underglow
 // =====================================================================
+// Body styles are cosmetic only: every car has the same size, handling and collision shape.
+// Profiles are side views (z = along the car, y = up) extruded across the width.
+const CAR_STYLES = [
+  {
+    id: 'vector', name: 'VECTOR', blurb: 'Wedge-nosed classic with a rear wing',
+    body: [[-2.22, 0.3], [2.05, 0.3], [2.27, 0.4], [2.2, 0.56], [1.05, 0.77], [-1.45, 0.85], [-2.18, 0.9], [-2.27, 0.7], [-2.27, 0.4]], bodyW: 1.9,
+    cabin: [[1.12, 0.74], [0.08, 1.2], [-0.82, 1.22], [-1.66, 0.86], [-1.66, 0.74]], cabinW: 1.48,
+    roof: [[0.1, 1.2], [-0.8, 1.225], [-0.8, 1.255], [0.06, 1.235]], roofW: 1.3,
+    wing: { size: [1.78, 0.05, 0.34], at: [0, 1.05, -1.98] },
+    struts: [[0.6, 0.94, -1.95], [-0.6, 0.94, -1.95]], strutH: 1,
+    skirt: 0.96, head: [0.62, 0.52, 2.23], tail: [0.72, 0.72, -2.29], tailBar: [0, 0.74, -2.285],
+  },
+  {
+    id: 'bruiser', name: 'BRUISER', blurb: 'Square-shouldered muscle car with a ducktail',
+    body: [[-2.25, 0.3], [2.1, 0.3], [2.28, 0.42], [2.26, 0.72], [0.8, 0.86], [-1.65, 0.9], [-2.2, 0.93], [-2.28, 0.74], [-2.28, 0.4]], bodyW: 1.96,
+    cabin: [[0.75, 0.85], [-0.05, 1.3], [-1.15, 1.32], [-1.82, 0.92], [-1.82, 0.85]], cabinW: 1.52,
+    roof: [[-0.04, 1.3], [-1.14, 1.32], [-1.14, 1.35], [-0.06, 1.33]], roofW: 1.4,
+    wing: { size: [1.72, 0.07, 0.22], at: [0, 0.97, -2.13] },          // a ducktail lip on the rear deck
+    struts: [], strutH: 1,
+    skirt: 0.99, head: [0.64, 0.62, 2.27], tail: [0.72, 0.64, -2.29], tailBar: [0, 0.66, -2.285],
+  },
+  {
+    id: 'phantom', name: 'PHANTOM', blurb: 'Low hypercar with a tall swan-neck wing',
+    body: [[-2.25, 0.28], [2.12, 0.28], [2.3, 0.36], [2.18, 0.56], [1.3, 0.72], [0.4, 0.7], [-1.55, 0.78], [-2.2, 0.82], [-2.3, 0.64], [-2.3, 0.38]], bodyW: 1.98,
+    cabin: [[1.3, 0.58], [0.45, 1.02], [-0.6, 1.07], [-1.45, 0.76], [-1.45, 0.58]], cabinW: 1.34,
+    roof: [[0.4, 1.02], [-0.58, 1.065], [-0.58, 1.095], [0.37, 1.05]], roofW: 1.1,
+    wing: { size: [2.0, 0.06, 0.44], at: [0, 1.24, -1.98] },
+    struts: [[0.55, 1.0, -1.95], [-0.55, 1.0, -1.95]], strutH: 2.6,    // the struts, stretched taller
+    skirt: 1.0, head: [0.66, 0.44, 2.22], tail: [0.74, 0.55, -2.31], tailBar: [0, 0.57, -2.305],
+  },
+];
+// Garage colors, for paint and underglow alike (AI cars use them too).
+const PAINTS = [0xff2bd6, 0x19f0ff, 0x7dff3a, 0xffa12e, 0xa35bff, 0xffe83a, 0xff3b4e, 0x2a6bff, 0x3affc8, 0xff7ad1, 0xe9ecff, 0xffc23a];
+
 const CAR_GEO = (() => {
-  // side profiles (z = along the car, y = up), extruded across the width
   const extrudeSide = (pts, width) => {
     const shape = new THREE.Shape(pts.map(([z, y]) => new THREE.Vector2(z, y)));
     const g = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: false });
@@ -1014,19 +1131,19 @@ const CAR_GEO = (() => {
     g.translate(width / 2, 0, 0);
     return g;
   };
-  const body = extrudeSide([[-2.22, 0.3], [2.05, 0.3], [2.27, 0.4], [2.2, 0.56], [1.05, 0.77], [-1.45, 0.85], [-2.18, 0.9], [-2.27, 0.7], [-2.27, 0.4]], 1.9);
-  const cabin = extrudeSide([[1.12, 0.74], [0.08, 1.2], [-0.82, 1.22], [-1.66, 0.86], [-1.66, 0.74]], 1.48);
-  const roof = extrudeSide([[0.1, 1.2], [-0.8, 1.225], [-0.8, 1.255], [0.06, 1.235]], 1.3);
   const wheel = new THREE.CylinderGeometry(0.36, 0.36, 0.3, 18); wheel.rotateZ(Math.PI / 2);
   return {
-    body, cabin, roof, wheel,
-    wing: new THREE.BoxGeometry(1.78, 0.05, 0.34),
+    wheel,
     strut: new THREE.BoxGeometry(0.06, 0.18, 0.12),
     skirt: new THREE.BoxGeometry(0.05, 0.05, 3.1),
     tailBar: new THREE.BoxGeometry(1.5, 0.07, 0.05),
     tailLamp: new THREE.BoxGeometry(0.36, 0.12, 0.06),
     headLamp: new THREE.BoxGeometry(0.42, 0.08, 0.06),
     glow: new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2),
+    styles: CAR_STYLES.map((st) => ({                     // the parts whose shape differs per style
+      body: extrudeSide(st.body, st.bodyW), cabin: extrudeSide(st.cabin, st.cabinW), roof: extrudeSide(st.roof, st.roofW),
+      wing: new THREE.BoxGeometry(...st.wing.size),
+    })),
   };
 })();
 const CAR_MAT = {
@@ -1040,8 +1157,10 @@ const CAR_MAT = {
 };
 
 class CarView {
-  constructor(colorHex) {
-    this.color = new THREE.Color(colorHex);
+  constructor(colorHex, { style = 0, glow = colorHex } = {}) {
+    this.style = clamp(style | 0, 0, CAR_STYLES.length - 1);
+    this.color = new THREE.Color(colorHex);              // paint
+    this.glowBase = new THREE.Color(glow);               // underglow and side neon
     this.root = new THREE.Group();                  // pose on the ground
     this.body = new THREE.Group();                  // + lean, squat and hop
     this.root.add(this.body);
@@ -1057,7 +1176,7 @@ class CarView {
     }
     this.roll = 0; this.pitch = 0; this.spin = 0; this.steerVis = 0; this.driftYaw = 0; this.glowBoost = 0;
     this.tailColor = new THREE.Color(1.5, 0.02, 0.06);
-    this.glowColor = this.color.clone().multiplyScalar(1.1);
+    this.glowColor = this.glowBase.clone().multiplyScalar(1.1);
     this.ownMaterials = [];
     CarBatch.add(this);
   }
@@ -1102,7 +1221,7 @@ class CarView {
     for (const pv of this.frontPivots) pv.rotation.y = this.steerVis;
     // underglow pulses while boosting
     this.glowBoost = damp(this.glowBoost, p.boostTime > 0 ? 1 : 0, 10, dt);
-    this.glowColor.copy(this.color).multiplyScalar(1.1 * (1 + this.glowBoost * 1.2));
+    this.glowColor.copy(this.glowBase).multiplyScalar(1.1 * (1 + this.glowBoost * 1.2));
     // brake lights
     const braking = p.braking > 0 && p.fwd > 0.5;
     this.tailColor.setRGB(braking ? 3.4 : 1.5, braking ? 0.06 : 0.02, braking ? 0.12 : 0.06);
@@ -1110,8 +1229,9 @@ class CarView {
 }
 
 // CAR BATCH: every car's parts are drawn as instances, one draw call per part for the whole
-// grid instead of ~28 per car. CarView holds the transforms; once a frame the batch copies them
-// (and the per-car colors) into the instance buffers.
+// grid instead of ~28 per car. CarView holds the transforms, style and colors; once a frame the
+// batch copies them into the instance buffers. Body shells are batched per style; the small
+// parts share one batch whatever the style (each style just places them differently).
 const CarBatch = (() => {
   const MAX = 12, G = CAR_GEO;
   // one shared paint: the per-car instance color tints the diffuse color and the faint emissive glow
@@ -1123,36 +1243,41 @@ const CarBatch = (() => {
   const neon = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 2.2, 2.2) });
   const tail = new THREE.MeshBasicMaterial();
   const glow = new THREE.MeshBasicMaterial({ map: TEX.radial, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });
-  // geometry, material, transform it follows, local offsets (one instance each), extras: scale, per-car color, draw order
-  const P = (geo, mat, at, offs, x = {}) => ({ geo, mat, at, offs, ...x });
+  const mirror = ([x, y, z]) => [[x, y, z], [-x, y, z]];
+  // geometry key, material, transform it follows, placements per style ([x, y, z, sx?, sy?, sz?]),
+  // the CarView color it takes (if any), draw order; perStyle parts have their own shape per style
   const parts = [
-    P(G.body, paint, 'body', [[0, 0, 0]], { color: 'color' }),
-    P(G.cabin, CAR_MAT.glass, 'body', [[0, 0, 0]]),
-    P(G.roof, paint, 'body', [[0, 0, 0]], { color: 'color' }),
-    P(G.wing, paint, 'body', [[0, 1.05, -1.98]], { color: 'color' }),
-    P(G.strut, CAR_MAT.dark, 'body', [[0.6, 0.94, -1.95], [-0.6, 0.94, -1.95]]),
-    P(G.skirt, neon, 'body', [[0.96, 0.34, 0], [-0.96, 0.34, 0]], { color: 'color' }),
-    P(G.tailBar, tail, 'body', [[0, 0.74, -2.285]], { color: 'tailColor' }),
-    P(G.tailLamp, tail, 'body', [[0.72, 0.72, -2.29], [-0.72, 0.72, -2.29]], { color: 'tailColor' }),
-    P(G.headLamp, CAR_MAT.head, 'body', [[0.62, 0.52, 2.23], [-0.62, 0.52, 2.23]]),
+    { key: 'body', perStyle: true, mat: paint, at: 'body', place: () => [[0, 0, 0]], color: 'color' },
+    { key: 'cabin', perStyle: true, mat: CAR_MAT.glass, at: 'body', place: () => [[0, 0, 0]] },
+    { key: 'roof', perStyle: true, mat: paint, at: 'body', place: () => [[0, 0, 0]], color: 'color' },
+    { key: 'wing', perStyle: true, mat: paint, at: 'body', place: (st) => [st.wing.at], color: 'color' },
+    { key: 'strut', mat: CAR_MAT.dark, at: 'body', place: (st) => st.struts.map(([x, y, z]) => [x, y, z, 1, st.strutH, 1]) },
+    { key: 'skirt', mat: neon, at: 'body', place: (st) => mirror([st.skirt, 0.34, 0]), color: 'glowBase' },
+    { key: 'tailBar', mat: tail, at: 'body', place: (st) => [st.tailBar], color: 'tailColor' },
+    { key: 'tailLamp', mat: tail, at: 'body', place: (st) => mirror(st.tail), color: 'tailColor' },
+    { key: 'headLamp', mat: CAR_MAT.head, at: 'body', place: (st) => mirror(st.head) },
     // ground decals: contact shadow, neon underglow, headlight pool (shadow first, so the glow isn't darkened)
-    P(G.glow, CAR_MAT.shadow, 'root', [[0, 0.06, 0]], { scale: [2.6, 1, 5.2], order: -2 }),
-    P(G.glow, glow, 'root', [[0, 0.075, -0.1]], { scale: [4.2, 1, 7.0], color: 'glowColor', order: -1 }),
-    P(G.glow, CAR_MAT.beam, 'root', [[0, 0.07, 11.2]], { scale: [9, 1, 18], order: -1 }),
+    { key: 'glow', mat: CAR_MAT.shadow, at: 'root', place: () => [[0, 0.06, 0, 2.6, 1, 5.2]], order: -2 },
+    { key: 'glow', mat: glow, at: 'root', place: () => [[0, 0.075, -0.1, 4.2, 1, 7.0]], color: 'glowColor', order: -1 },
+    { key: 'glow', mat: CAR_MAT.beam, at: 'root', place: () => [[0, 0.07, 11.2, 9, 1, 18]], order: -1 },
   ];
-  const one = new THREE.Vector3(1, 1, 1), q0 = new THREE.Quaternion();
+  const q0 = new THREE.Quaternion(), meshes = [];
+  const instanced = (geo, mat, count, part) => {
+    const m = new THREE.InstancedMesh(geo, mat, count);
+    if (part && part.color) m.setColorAt(0, new THREE.Color(1, 1, 1));   // allocates instanceColor before the first compile
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    if (part && part.order) m.renderOrder = part.order;
+    m.count = 0; m.visible = false; m.frustumCulled = false; m.userData.n = 0;
+    scene.add(m); meshes.push(m);
+    return m;
+  };
   for (const part of parts) {
-    const n = part.offs.length;
-    part.local = part.offs.map(([x, y, z]) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), q0, part.scale ? new THREE.Vector3(...part.scale) : one));
-    part.mesh = new THREE.InstancedMesh(part.geo, part.mat, MAX * n);
-    if (part.color) part.mesh.setColorAt(0, new THREE.Color(1, 1, 1));   // allocates instanceColor before the first compile
-    part.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    if (part.order) part.mesh.renderOrder = part.order;
+    part.local = CAR_STYLES.map((st) => part.place(st).map(([x, y, z, sx = 1, sy = 1, sz = 1]) =>
+      new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), q0, new THREE.Vector3(sx, sy, sz))));
+    if (part.perStyle) part.meshes = G.styles.map((sg) => instanced(sg[part.key], part.mat, MAX, part));
+    else part.mesh = instanced(G[part.key], part.mat, MAX * 2, part);
   }
-  const wheels = new THREE.InstancedMesh(G.wheel, [CAR_MAT.tire, CAR_MAT.rim, CAR_MAT.rim], MAX * 4);
-  wheels.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-  const meshes = [...parts.map((pt) => pt.mesh), wheels];
-  for (const m of meshes) { m.count = 0; m.visible = false; m.frustumCulled = false; scene.add(m); }
+  const wheels = instanced(G.wheel, [CAR_MAT.tire, CAR_MAT.rim, CAR_MAT.rim], MAX * 4);
 
   const views = [], _m = new THREE.Matrix4();
   return {
@@ -1160,25 +1285,27 @@ const CarBatch = (() => {
     remove(view) { const i = views.indexOf(view); if (i >= 0) views.splice(i, 1); },
     // after every CarView.update of the frame
     update() {
-      views.forEach((v, slot) => {
+      for (const m of meshes) m.userData.n = 0;
+      for (const v of views) {
         v.root.updateMatrixWorld(true);
         for (const part of parts) {
-          const base = part.at === 'body' ? v.body.matrixWorld : v.root.matrixWorld, n = part.local.length;
-          for (let k = 0; k < n; k++) {
-            part.mesh.setMatrixAt(slot * n + k, _m.multiplyMatrices(base, part.local[k]));
-            if (part.color) part.mesh.setColorAt(slot * n + k, v[part.color]);
+          const im = part.perStyle ? part.meshes[v.style] : part.mesh;
+          const base = part.at === 'body' ? v.body.matrixWorld : v.root.matrixWorld;
+          for (const L of part.local[v.style]) {
+            const k = im.userData.n++;
+            im.setMatrixAt(k, _m.multiplyMatrices(base, L));
+            if (part.color) im.setColorAt(k, v[part.color]);
           }
         }
-        for (let k = 0; k < 4; k++) wheels.setMatrixAt(slot * 4 + k, v.wheels[k].matrixWorld);
-      });
-      for (const part of parts) {
-        part.mesh.count = views.length * part.local.length;
-        part.mesh.instanceMatrix.needsUpdate = true;
-        if (part.color) part.mesh.instanceColor.needsUpdate = true;
+        for (let k = 0; k < 4; k++) wheels.setMatrixAt(wheels.userData.n++, v.wheels[k].matrixWorld);
       }
-      wheels.count = views.length * 4;
-      wheels.instanceMatrix.needsUpdate = true;
-      for (const m of meshes) m.visible = views.length > 0;
+      for (const m of meshes) {
+        m.count = m.userData.n;
+        m.visible = m.count > 0;
+        if (!m.visible) continue;
+        m.instanceMatrix.needsUpdate = true;
+        if (m.instanceColor) m.instanceColor.needsUpdate = true;
+      }
     },
   };
 })();
@@ -1356,6 +1483,12 @@ const Effects = {
     }
   },
 
+  // drop every particle and trail (switching tracks)
+  clear() {
+    for (const ps of [this.sparks, this.smoke]) { ps.n = 0; ps.cursor = 0; }
+    const sk = this.skids; sk.birth.fill(-1e6); sk.first = 0; sk.count = sk.max;
+  },
+
   update(dt) {
     this.time += dt;
     this.sparks.update(dt);
@@ -1459,18 +1592,26 @@ class GeoBuilder {
 // road and barrier meshes, wall collisions, checkpoints and lap progress,
 // reset points, the starting grid and the AI racing line.
 // =====================================================================
-const TRACK_CORNERS = [
-  // [x, z] of each street corner (meters, on the 120 m city grid) and the radius the road takes through it
-  [-240,   0,  16],
-  [ 360,   0,  16],
-  [ 360, 240,  16],
-  [ 240, 240,  16],
-  [ 240, 480, 110],   // fast sweeper
-  [   0, 480,  16],
-  [   0, 360,  16],
-  [-240, 360,  90],   // fast sweeper
+const TRACKS = [
+  // corners: [x, z] of each street corner (meters, on the 120 m city grid) and the radius the road
+  // takes through it. start: the start/finish line, on a straight long enough for the grid behind it.
+  {
+    id: 'neon', name: 'NEON CIRCUIT', theme: 'night', seed: 1985, start: [-60, 0],
+    blurb: 'Long straights, square corners and two fast sweepers',
+    corners: [[-240, 0, 16], [360, 0, 16], [360, 240, 16], [240, 240, 16], [240, 480, 110], [0, 480, 16], [0, 360, 16], [-240, 360, 90]],
+  },
+  {
+    id: 'sunset', name: 'SUNSET STRIP', theme: 'sunset', seed: 2024, start: [-60, 0],
+    blurb: 'Flat-out sweepers and a long U-turn at the far end',
+    corners: [[-360, 0, 80], [480, 0, 160], [480, 360, 60], [360, 360, 60], [360, 240, 50], [0, 240, 60], [0, 480, 110], [-360, 480, 110]],
+  },
+  {
+    id: 'midnight', name: 'MIDNIGHT GRID', theme: 'midnight', seed: 777, start: [0, 0],
+    blurb: 'A technical zig-zag through the downtown blocks',
+    corners: [[-120, 0, 16], [360, 0, 16], [360, 120, 16], [120, 120, 16], [120, 240, 16], [360, 240, 16], [360, 480, 25], [0, 480, 16], [0, 360, 16], [-120, 360, 30]],
+  },
 ];
-const TRACK_START = [-60, 0];   // start/finish line, on the long main straight
+const trackDef = (id) => TRACKS.find((t) => t.id === id) || TRACKS[0];
 
 // Spline control points: arcs through each corner (a fillet of the given radius), with
 // extra points along the straights so the spline stays dead straight between corners.
@@ -1724,9 +1865,10 @@ function addTrackRibbon(gb, track, oa, ya, ob, yb, r, g, b, vScale = 0) {
   }
 }
 
-function buildTrackMeshes(track) {
+let TRACK_TEX = null;                     // shared by every circuit, made once
+function buildTrackMeshes(track, theme) {
   const group = new THREE.Group();
-  const T = makeTrackTextures();
+  const T = TRACK_TEX || (TRACK_TEX = makeTrackTextures());
   const { n, wall, halfWidth: hw } = track;
 
   // road surface: dark, slightly glossy asphalt with wet patches
@@ -1745,9 +1887,9 @@ function buildTrackMeshes(track) {
   }
   group.add(new THREE.Mesh(walls.build(true), new THREE.MeshStandardMaterial({ color: 0x1d1530, roughness: 0.55, metalness: 0.35, side: THREE.DoubleSide })));
 
-  // neon: glowing road edge lines and barrier-top strips (left cyan, right pink)
+  // neon: glowing road edge lines and barrier-top strips (left and right colors come from the theme)
   const neon = new GeoBuilder();
-  const cyan = new THREE.Color(0x19f0ff).multiplyScalar(1.25), pink = new THREE.Color(0xff2bd6).multiplyScalar(1.25);
+  const cyan = new THREE.Color(theme.edge[0]).multiplyScalar(1.25), pink = new THREE.Color(theme.edge[1]).multiplyScalar(1.25);
   for (const [side, c] of [[1, cyan], [-1, pink]]) {
     addTrackRibbon(neon, track, side * (hw - 0.1), 0.03, side * (hw - 0.38), 0.03, c.r * 0.9, c.g * 0.9, c.b * 0.9);
     addTrackRibbon(neon, track, side * (wall + 0.07), 1.012, side * (wall + 0.24), 1.012, c.r, c.g, c.b);
@@ -1817,7 +1959,7 @@ function buildTrackMeshes(track) {
 // CITY — procedural neon blocks around the circuit. Buildings are merged into
 // a handful of meshes and never placed within reach of the road.
 // =====================================================================
-const CITY = { block: 120, street: 16, sidewalk: 4, seed: 1985 };
+const CITY = { block: 120, street: 16, sidewalk: 4 };   // the random seed is per track
 
 function makeFacadeTexture() {
   // window atlas: 128 × 64 cells of 16 px. Left half = apartments, right half = offices.
@@ -1887,9 +2029,10 @@ function makeSignAtlas() {
   return { tex: canvasTexture(c), slots };
 }
 
-function buildCity(track) {
+const CITY_TEX = {};                      // window and sign atlases, shared by every circuit
+function buildCity(track, def) {
   const { block: B, street: S, sidewalk: W } = CITY;
-  const rand = mulberry32(CITY.seed);
+  const rand = mulberry32(def.seed), theme = THEMES[def.theme];
   const group = new THREE.Group();
 
   // city extent: the circuit's bounding box plus a wide margin, snapped to whole blocks
@@ -1974,7 +2117,7 @@ function buildCity(track) {
   // lots → buildings
   const facade = new GeoBuilder(), neon = new GeoBuilder();
   const buildings = [];
-  const palette = [[0xff2bd6, 1.8], [0x19f0ff, 1.8], [0xa35bff, 1.8], [0xff2bd6, 1.8], [0x19f0ff, 1.8], [0xffa12e, 1.6], [0x7dff3a, 1.25]].map(([h, k]) => new THREE.Color(h).multiplyScalar(k));
+  const palette = theme.neon.map(([h, k]) => new THREE.Color(h).multiplyScalar(k));
   const cx0 = (minX + maxX) / 2, cz0 = (minZ + maxZ) / 2;
   const split = (a, b) => {
     const L = b - a, parts = L > 70 ? (rand() < 0.45 ? 2 : 3) : 2, cuts = [a];
@@ -2056,12 +2199,12 @@ function buildCity(track) {
       }
     }
   }
-  const facadeTex = makeFacadeTexture();
+  const facadeTex = CITY_TEX.facade || (CITY_TEX.facade = makeFacadeTexture());
   group.add(new THREE.Mesh(facade.build(), new THREE.MeshBasicMaterial({ map: facadeTex, vertexColors: true })));
   group.add(new THREE.Mesh(neon.build(), new THREE.MeshBasicMaterial({ vertexColors: true })));
 
   // glowing signs on building faces that look onto the circuit
-  const atlas = makeSignAtlas(), signs = new GeoBuilder();
+  const atlas = CITY_TEX.signs || (CITY_TEX.signs = makeSignAtlas()), signs = new GeoBuilder();
   const placed = [];
   let hk = 0, vk = 0;
   for (const bld of buildings) {
@@ -2144,14 +2287,26 @@ function computeSpeedProfiles(track) {
     if (f < 1e-6) return w0 / k;
     return (-k + Math.sqrt(k * k + 4 * f * k * w0)) / (2 * f * k);
   };
+  // A drift slides wider the longer it lasts, so through a U-turn (one continuous turn of more than
+  // 140° on the racing line) the AI takes the grip speed instead and doesn't start a drift there.
+  const longTurn = new Uint8Array(n), thr = 1 / 150;
+  let s0 = 0;
+  while (s0 < n && Math.abs(track.lineCurv[s0]) > thr) s0++;             // start on a straight
+  for (let k = 0, run = null; k <= n; k++) {
+    const i = (s0 + k) % n, c = track.lineCurv[i], on = k < n && Math.abs(c) > thr;
+    if (on && run && Math.sign(c) === run.sg) { run.turn += c * track.spacing; run.end = i; continue; }
+    if (run && Math.abs(run.turn) > 2.45) for (let j = run.start; ; j = (j + 1) % n) { longTurn[j] = 1; if (j === run.end) break; }
+    run = on ? { sg: Math.sign(c), turn: c * track.spacing, start: i, end: i } : null;
+  }
   for (let i = 0; i < n; i++) {
     let k = 0;
     for (let d = -5; d <= 5; d++) k = Math.max(k, Math.abs(track.lineCurv[(i + d + n) % n]));
     grip[i] = solve(k, wGrip, C.steerSpeedFalloff);
-    drift[i] = Math.max(grip[i], solve(k, wDrift, C.driftSpeedFalloff));
+    drift[i] = longTurn[i] ? grip[i] : Math.max(grip[i], solve(k, wDrift, C.driftSpeedFalloff));
   }
   track.gripSpeed = grip;
   track.driftSpeed = drift;
+  track.longTurn = longTurn;
 }
 
 // level 0 = slowest of the field … 1 = fastest; CONFIG.ai.difficulty shifts the whole field
@@ -2354,7 +2509,14 @@ class RaceTracker {
 // ~20×/s; the host relays everyone's cars; remote cars are interpolated.
 // =====================================================================
 const PEERJS_URL = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js';   // loaded on demand
-const NET_PROTOCOL = 1;
+const NET_PROTOCOL = 2;          // bump when messages change: older game files are turned away with a clear message
+
+// a car as described by another machine: only known styles and palette colors get through
+function sanitizeCar(c) {
+  c = c && typeof c === 'object' ? c : {};
+  const color = PAINTS.includes(c.color) ? c.color : PAINTS[0];
+  return { style: Number.isInteger(c.style) ? clamp(c.style, 0, CAR_STYLES.length - 1) : 0, color, glow: PAINTS.includes(c.glow) ? c.glow : color };
+}
 const ROOM_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';        // no O/0 or I/1/L lookalikes
 const randomCode = (n = 5) => Array.from({ length: n }, () => ROOM_ALPHABET[Math.floor(Math.random() * ROOM_ALPHABET.length)]).join('');
 const cleanName = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9 _.-]/g, '').trim().slice(0, 12) || 'RACER';
@@ -2497,7 +2659,7 @@ const Net = {
   },
 
   // ---------------- host ----------------
-  async host(name) {
+  async host(name, car) {
     await loadPeerJS();
     let peer = null;
     for (let tries = 0; !peer; tries++) {
@@ -2506,7 +2668,7 @@ const Net = {
       catch (err) { if (err.type !== 'unavailable-id' || tries >= 4) throw err; }   // code taken: roll another
     }
     this.role = 'host'; this.peer = peer; this.myId = 'H'; this.nextGuest = 1;
-    this.players = [{ id: 'H', name, color: CONFIG.colors[0] }];
+    this.players = [{ id: 'H', name, ...sanitizeCar(car) }];
     peer.on('connection', (conn) => this.acceptGuest(conn));
     peer.on('error', () => {});                                   // per-guest failures are handled on their connections
     peer.on('disconnected', () => { if (!peer.destroyed) try { peer.reconnect(); } catch { /* keep racing */ } });
@@ -2523,12 +2685,11 @@ const Net = {
         if (msg.v !== NET_PROTOCOL) return reject('version');
         if (this.players.length >= CONFIG.net.maxPlayers) return reject('full');
         id = 'P' + this.nextGuest++;
-        const color = CONFIG.colors.slice(0, CONFIG.net.maxPlayers).find((c) => !this.players.some((p) => p.color === c));
-        const player = { id, name: cleanName(msg.name), color };
+        const player = { id, name: cleanName(msg.name), ...sanitizeCar(msg.car) };   // everyone races their own garage car
         this.players.push(player);
         this.guests.set(id, { conn, player, lastSeen: performance.now() });
-        conn.send({ t: 'welcome', id, players: this.players, racing: Game.raceRunning() });
-        this.broadcast({ t: 'lobby', players: this.players }, id);
+        conn.send({ t: 'welcome', id, players: this.players, racing: Game.raceRunning(), track: Game.trackDef.id });
+        this.broadcast(this.lobbyMsg(), id);
         Game.onPlayersChanged(`${player.name} JOINED`);
         return;
       }
@@ -2550,18 +2711,20 @@ const Net = {
     this.guests.delete(id);
     try { g.conn.close(); } catch { /* already closed */ }
     this.players = this.players.filter((p) => p.id !== id);
-    this.broadcast({ t: 'lobby', players: this.players });
+    this.broadcast(this.lobbyMsg());
     this.broadcast({ t: 'left', id });
     Game.removeCar(id);
     Game.onPlayersChanged(`${g.player.name} ${why}`);
   },
+
+  lobbyMsg() { return { t: 'lobby', players: this.players, track: Game.trackDef.id }; },   // who's in, and the host's track
 
   broadcast(msg, exceptId) {
     for (const [id, g] of this.guests) if (id !== exceptId && g.conn.open) { try { g.conn.send(msg); } catch { /* dropped soon */ } }
   },
 
   // ---------------- guest ----------------
-  async join(name, code) {
+  async join(name, code, car) {
     await loadPeerJS();
     const peer = await this.openPeer(CONFIG.net.idPrefix + 'guest-' + randomCode(10).toLowerCase());
     this.peer = peer;
@@ -2578,7 +2741,7 @@ const Net = {
       const timer = setTimeout(() => done({ type: 'timeout-host' }), CONFIG.net.joinTimeout * 1000);
       peer.on('error', onErr);
       const conn = peer.connect(CONFIG.net.idPrefix + code, { reliable: true, serialization: 'json' });
-      conn.on('open', () => conn.send({ t: 'hello', name, v: NET_PROTOCOL }));
+      conn.on('open', () => conn.send({ t: 'hello', name, v: NET_PROTOCOL, car }));
       conn.on('data', (msg) => {
         if (!msg || typeof msg.t !== 'string') return;
         this.lastHeard = performance.now();
@@ -2586,6 +2749,7 @@ const Net = {
           if (msg.t === 'welcome') {
             Object.assign(this, { role: 'guest', conn, code, myId: msg.id, players: msg.players });
             this.joinedMidRace = !!msg.racing;
+            if (!msg.racing) Game.followTrack(msg.track);
             done(null);
           } else if (msg.t === 'reject') done({ type: 'reject', reason: msg.reason });
           return;
@@ -2602,7 +2766,11 @@ const Net = {
   onHostMessage(msg) {
     switch (msg.t) {
       case 'pong': this.onPong(msg); break;
-      case 'lobby': this.players = Array.isArray(msg.players) ? msg.players : this.players; Game.onPlayersChanged(); break;
+      case 'lobby':
+        this.players = Array.isArray(msg.players) ? msg.players.map((p) => ({ ...p, ...sanitizeCar(p) })) : this.players;
+        if (!Game.raceRunning()) Game.followTrack(msg.track);
+        Game.onPlayersChanged();
+        break;
       case 'start': Game.onlineStart(msg); break;
       case 'n': Game.onSnapshot(msg); break;
       case 'r': Game.onRaceUpdate(msg); break;
@@ -3171,15 +3339,16 @@ const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', 
 // GAME STATE — title → countdown → racing → finished (results) → race again
 // =====================================================================
 class Car {
-  constructor({ id, name, color, input, human = false, tag = false }) {
+  constructor({ id, name, color, input, human = false, tag = false, style = 0, glow = color }) {
     this.id = id; this.name = name; this.color = color; this.input = input; this.human = human;
+    this.style = style; this.glow = glow;
     this.phys = new CarPhysics();
     this.ctl = { throttle: 0, brake: 0, steer: 0, drift: false };
     this.prev = { x: 0, z: 0, h: 0 };
     this.pose = { x: 0, z: 0, h: 0 };              // interpolated render pose
-    this.view = new CarView(color);
+    this.view = new CarView(color, { style, glow });
     this.skid = [null, null];                       // last trail point per rear wheel
-    this.trail = new THREE.Color(color).multiplyScalar(0.42);   // neon drift-trail tint
+    this.trail = new THREE.Color(glow).multiplyScalar(0.42);    // neon drift trails take the underglow color
     if (tag) this.view.addTag(name, color);         // floating name over other players' cars
     scene.add(this.view.root);
   }
@@ -3232,14 +3401,53 @@ const Game = {
   debugCam: null,          // { pos: [x,y,z], look: [x,y,z] } overrides the camera (testing / screenshots)
 
   init() {
-    const t0 = performance.now();
-    this.track = new Track(TRACK_CORNERS, TRACK_START);
-    buildTrackMeshes(this.track);
-    this.city = buildCity(this.track);
-    computeSpeedProfiles(this.track);
-    this.buildMs = performance.now() - t0;
     this.chase = new ChaseCamera(camera);
+    this.loadTrack(Store.get('track', TRACKS[0].id));
     $('nameInput').value = Store.get('name', 'RACER');
+  },
+
+  // Build (or rebuild) the world for a circuit: sky and fog, road, city, AI speed profiles.
+  loadTrack(id) {
+    const def = trackDef(id);
+    if (this.trackDef === def) return;
+    const t0 = performance.now();
+    for (const g of this.world || []) disposeObject(g);
+    applyTheme(THEMES[def.theme]);
+    this.track = new Track(def.corners, def.start);
+    const road = buildTrackMeshes(this.track, THEMES[def.theme]);
+    this.city = buildCity(this.track, def);
+    this.world = [road, this.city.group];
+    computeSpeedProfiles(this.track);
+    this.trackDef = def;
+    this.buildMs = performance.now() - t0;
+    Effects.clear();
+    this.chase.droneS = undefined;                            // restart the menu flyover on the new circuit
+    Store.set('track', def.id);
+    this.refreshTrackUI();
+  },
+  // title / lobby picker: step through the circuits
+  stepTrack(dir) {
+    const i = TRACKS.indexOf(this.trackDef);
+    this.loadTrack(TRACKS[(i + dir + TRACKS.length) % TRACKS.length].id);
+    if (this.mode === 'host') this.hostTrackChanged();
+  },
+  hostTrackChanged() { Net.broadcast(Net.lobbyMsg()); this.renderLobby(); },   // guests follow the host's pick
+  followTrack(id) { if (TRACKS.some((t) => t.id === id)) this.loadTrack(id); },  // guest: the host's track
+  refreshTrackUI() {
+    const def = this.trackDef, rec = this.record(def.id);
+    for (const el of document.querySelectorAll('.trackName')) el.textContent = def.name;
+    for (const el of document.querySelectorAll('.trackMeta')) el.textContent = `${(this.track.length / 1000).toFixed(1)} KM · ${Number.isFinite(rec) ? `RECORD ${fmtTime(rec)}` : 'NO RECORD YET'}`;
+    for (const el of document.querySelectorAll('.trackPick')) el.title = def.blurb;
+  },
+  // all-time best lap per circuit, kept in this browser
+  record(id) { const v = parseFloat(Store.get('best.' + id, '')); return Number.isFinite(v) ? v : Infinity; },
+  // save a lap that beats the stored record; only celebrate beating one that stood before this race
+  checkRecord(lapTime) {
+    const id = this.trackDef.id;
+    if (!(lapTime > 0 && lapTime < this.record(id))) return;
+    Store.set('best.' + id, String(lapTime));
+    if (Number.isFinite(this.recordAtStart) && lapTime < this.recordAtStart) HUD.toast(`NEW TRACK RECORD · ${fmtTime(lapTime)}`);
+    this.refreshTrackUI();
   },
 
   playerName() {
@@ -3265,22 +3473,74 @@ const Game = {
   },
 
   // Grid order: AI cars fill the front slots (fastest on pole), humans start at the back.
+  // Humans bring their garage car; AI cars get a random style and a paint nobody else has.
   buildGrid(humans) {
     const size = Math.max(CONFIG.race.gridSize, humans.length), nAI = size - humans.length;
     const taken = humans.map((h) => h.color);
-    const aiColors = CONFIG.colors.filter((c) => !taken.includes(c));
+    const aiColors = PAINTS.filter((c) => !taken.includes(c)).sort(() => Math.random() - 0.5);
     const names = [...AI_NAMES].sort(() => Math.random() - 0.5);
     const grid = [];
-    for (let k = 0; k < nAI; k++) grid.push({ id: 'A' + k, name: names[k], color: aiColors[k % aiColors.length], ai: makeAISkill(nAI > 1 ? 1 - k / (nAI - 1) : 0.5) });
-    for (const h of humans) grid.push({ id: h.id, name: h.name, color: h.color, ai: null });
+    for (let k = 0; k < nAI; k++) {
+      const color = aiColors[k % aiColors.length];
+      grid.push({ id: 'A' + k, name: names[k], color, glow: color, style: Math.floor(Math.random() * CAR_STYLES.length), ai: makeAISkill(nAI > 1 ? 1 - k / (nAI - 1) : 0.5) });
+    }
+    for (const h of humans) grid.push({ id: h.id, name: h.name, color: h.color, glow: h.glow, style: h.style, ai: null });
     return grid;
+  },
+
+  // ---------------- garage: pick a body, paint and underglow on a turntable ----------------
+  openGarage() {
+    if (this.state !== 'title') return;
+    this.state = 'garage';
+    this.garageCar = this.myCar();
+    $('titleScreen').classList.add('hidden');
+    $('garageScreen').classList.remove('hidden');
+    const T = this.track, i = Math.round(28 / T.spacing);             // on the start straight, just past the gantry
+    const c = this.garageCar;
+    this.showcase = new CarView(c.color, { style: c.style, glow: c.glow });
+    scene.add(this.showcase.root);
+    this.showcasePose = { x: T.x[i], z: T.z[i], h: T.heading[i] };
+    this.garageT = 0;
+    this.refreshGarage();
+  },
+  closeGarage() {
+    if (this.state !== 'garage') return;
+    this.showcase.dispose(); this.showcase = null;
+    this.state = 'title';
+    $('garageScreen').classList.add('hidden');
+    $('titleScreen').classList.remove('hidden');
+  },
+  // change the garage car ({ style, color, glow }); an underglow that matched the paint keeps matching it
+  setGarage(change) {
+    const c = this.garageCar;
+    if ('color' in change && !('glow' in change) && c.glow === c.color) change.glow = change.color;
+    Object.assign(c, change);
+    Store.set('car', JSON.stringify(c));
+    const v = this.showcase;
+    v.style = c.style; v.color.set(c.color); v.glowBase.set(c.glow);
+    this.refreshGarage();
+  },
+  stepStyle(dir) { this.setGarage({ style: (this.garageCar.style + dir + CAR_STYLES.length) % CAR_STYLES.length }); },
+  refreshGarage() {
+    const c = this.garageCar, st = CAR_STYLES[c.style];
+    $('styName').textContent = st.name; $('styBlurb').textContent = st.blurb;
+    for (const [id, key] of [['paintSw', 'color'], ['glowSw', 'glow']]) for (const b of $(id).children) b.classList.toggle('on', +b.dataset.c === c[key]);
+  },
+
+  // the garage car, as saved in this browser: { style, color (paint), glow }
+  myCar() {
+    let c = {};
+    try { c = JSON.parse(Store.get('car', '{}')) || {}; } catch { /* default */ }
+    const pick = (v, d) => (PAINTS.includes(v) ? v : d);
+    const color = pick(c.color, PAINTS[0]);
+    return { style: Number.isInteger(c.style) ? clamp(c.style, 0, CAR_STYLES.length - 1) : 0, color, glow: pick(c.glow, color) };
   },
 
   startSolo() {
     Net.leave();
     this.mode = 'solo';
     this.myId = 'p1';
-    this.soloHumans = [{ id: 'p1', name: this.playerName(), color: CONFIG.colors[0] }];
+    this.soloHumans = [{ id: 'p1', name: this.playerName(), ...this.myCar() }];
     this.setupRace(this.buildGrid(this.soloHumans), CONFIG.race.laps, 0);
   },
 
@@ -3293,11 +3553,12 @@ const Game = {
   // keyboard, AI cars are simulated by the host (or solo), everything else follows the network.
   setupRace(grid, laps, goAt) {
     this.clearCars();
+    this.recordAtStart = this.record(this.trackDef.id);
     computeSpeedProfiles(this.track);                       // AI follows any CONFIG.car tuning
     for (const g of grid) {
       const mine = g.id === this.myId;
       const input = mine ? new KeyboardInput() : g.ai && this.mode !== 'guest' ? new AIInput(this.track, g.ai) : new NetworkInput();
-      const car = this.addCar({ id: g.id, name: g.name, color: g.color, human: !g.ai, input, tag: !g.ai && !mine });
+      const car = this.addCar({ id: g.id, name: g.name, color: g.color, style: g.style, glow: g.glow, human: !g.ai, input, tag: !g.ai && !mine });
       if (input.kind === 'ai') car.phys.perf = g.ai.perf;
     }
     this.cars.forEach((car, slot) => { const p = this.track.gridPose(slot); car.place(p.x, p.z, p.h); });
@@ -3328,7 +3589,7 @@ const Game = {
     const name = this.playerName();
     menuMsg('Creating a room…');
     try {
-      await Net.host(name);
+      await Net.host(name, this.myCar());
       this.mode = 'host'; this.myId = 'H';
       menuMsg('');
       this.enterLobby();
@@ -3340,9 +3601,10 @@ const Game = {
 
   hostStartRace() {
     if (this.mode !== 'host') return;
-    const grid = this.buildGrid(Net.players.map((p) => ({ id: p.id, name: p.name, color: p.color })));
+    const grid = this.buildGrid(Net.players.map((p) => ({ id: p.id, name: p.name, color: p.color, style: p.style, glow: p.glow })));
     const go = performance.now() + CONFIG.net.countdownMs;
-    Net.broadcast({ t: 'start', grid: grid.map((g) => ({ id: g.id, name: g.name, color: g.color, ai: g.ai ? 1 : 0 })), laps: CONFIG.race.laps, go: Math.round(go) });
+    Net.broadcast({ t: 'start', track: this.trackDef.id, laps: CONFIG.race.laps, go: Math.round(go),
+      grid: grid.map((g) => ({ id: g.id, name: g.name, color: g.color, glow: g.glow, style: g.style, ai: g.ai ? 1 : 0 })) });
     this.setupRace(grid, CONFIG.race.laps, go);
   },
 
@@ -3388,7 +3650,7 @@ const Game = {
     this.busy = true;
     $('joinMsg').textContent = `Connecting to room ${code}…`;
     try {
-      await Net.join(this.playerName(), code);
+      await Net.join(this.playerName(), code, this.myCar());
       this.mode = 'guest';
       this.myId = Net.myId;
       this.enterLobby();
@@ -3402,7 +3664,8 @@ const Game = {
 
   onlineStart(msg) {                                        // guest: the host started a race
     if (!Array.isArray(msg.grid) || !msg.grid.some((g) => g.id === this.myId)) return;
-    const grid = msg.grid.map((g) => ({ id: String(g.id), name: cleanName(g.name), color: g.color | 0, ai: g.ai ? 1 : 0 }));
+    this.followTrack(msg.track);                            // normally already loaded from the lobby
+    const grid = msg.grid.map((g) => ({ id: String(g.id), name: cleanName(g.name), ...sanitizeCar(g), ai: g.ai ? 1 : 0 }));
     this.setupRace(grid, clamp(msg.laps | 0, 1, 9), msg.go - Net.offset);
   },
 
@@ -3446,8 +3709,9 @@ const Game = {
   renderLobby() {
     $('roomCode').textContent = Net.code;
     $('lobbyPlayers').innerHTML = Net.players.map((p) =>
-      `<div style="--c:${cssColor(p.color)}"><i></i>${escapeHtml(p.name)}${p.id === 'H' ? '<small>HOST</small>' : ''}${p.id === Net.myId ? '<small>YOU</small>' : ''}</div>`).join('');
+      `<div style="--c:${cssColor(p.color)}"><i></i>${escapeHtml(p.name)}<small class="car">${CAR_STYLES[sanitizeCar(p).style].name}</small>${p.id === 'H' ? '<small>HOST</small>' : ''}${p.id === Net.myId ? '<small>YOU</small>' : ''}</div>`).join('');
     const host = this.mode === 'host';
+    $('lobbyTrack').classList.toggle('locked', !host);
     $('startOnlineBtn').classList.toggle('hidden', !host);
     $('lobbyMsg').textContent = host
       ? (Net.players.length > 1 ? 'Everyone in? Start the race. AI cars fill the empty grid slots.' : 'Waiting for friends. You can also start now and race the AI.')
@@ -3486,6 +3750,7 @@ const Game = {
   // ---------------- race events ----------------
   onLap(e, lapTime) {
     if (e.car !== this.player) return;
+    this.checkRecord(lapTime);
     Sound.chime(e.lap === this.race.laps);
     // lap time plus the delta to your best earlier lap (green when it's a new best)
     const prevBest = Math.min(...e.lapTimes.slice(0, -1));
@@ -3498,6 +3763,7 @@ const Game = {
 
   onFinish(e) {
     if (e.car !== this.player) return;
+    this.checkRecord(e.lapTimes[e.lapTimes.length - 1]);
     this.state = 'finished';
     this.finishTimer = 0;
     if (this.mode === 'guest') Net.send({ t: 'fin', time: e.finishTime, best: Number.isFinite(e.best) ? e.best : 0 });
@@ -3573,6 +3839,12 @@ const Game = {
   onKeyPress(code) {
     if (code === 'Backquote') { $('tuning').classList.toggle('hidden'); $('debug').classList.toggle('hidden'); return; }
     if (code === 'KeyM') { Sound.toggleMute(); return; }
+    if (this.state === 'garage') {
+      if (code === 'Escape' || code === 'Enter') this.closeGarage();
+      else if (code === 'ArrowLeft' || code === 'KeyA') this.stepStyle(-1);
+      else if (code === 'ArrowRight' || code === 'KeyD') this.stepStyle(1);
+      return;
+    }
     if (this.state === 'title') { if (code === 'Enter' && $('joinScreen').classList.contains('hidden')) this.startSolo(); return; }
     if (this.state === 'lobby') { if (code === 'Enter' && this.mode === 'host') this.hostStartRace(); return; }
     if (this.resultsShown && code === 'Enter') { this.raceAgain(); return; }
@@ -3646,9 +3918,18 @@ const Game = {
       if (car.view.tag) car.view.tag.visible = Math.hypot(car.pose.x - camera.position.x, car.pose.z - camera.position.z) < 170;
       this.carEffects(car, dt);
     }
+    if (this.showcase) this.showcase.update(this.showcasePose, IDLE_PHYS, dt);
     CarBatch.update();
     Effects.update(dt);
     if (this.debugCam) { camera.position.fromArray(this.debugCam.pos); camera.lookAt(...this.debugCam.look); }
+    else if (this.state === 'garage' && this.showcase) {
+      // slow orbit; aim a little to the car's left so it sits right of the garage panel
+      this.garageT += dt;
+      const q = this.showcasePose, a = q.h + 2.3 + this.garageT * 0.3, rx = Math.cos(a), rz = -Math.sin(a);
+      camera.position.set(q.x + Math.sin(a) * 6.3, 2.0, q.z + Math.cos(a) * 6.3);
+      camera.lookAt(q.x - rx * 1.7, 0.75, q.z - rz * 1.7);
+      if (camera.fov !== CONFIG.camera.fov) { camera.fov = CONFIG.camera.fov; camera.updateProjectionMatrix(); }
+    }
     else if (!this.player || this.state === 'title' || this.state === 'lobby') this.chase.flyover(dt, this.track);
     else if (this.state === 'countdown' || (this.state === 'paused' && this.resumeState === 'countdown')) {
       this.chase.intro(dt, this.player.pose, 1 - this.countdown / (this.goAt ? CONFIG.net.countdownMs / 1000 : 3), this.introSide);
@@ -3745,6 +4026,16 @@ const Game = {
   },
 };
 const _w = { x: 0, z: 0 };
+const IDLE_PHYS = { accelLat: 0, accelLong: 0, drifting: false, driftDir: 1, hopT: 1, fwd: 0, steer: 0, boostTime: 0, braking: 0 };   // a parked car
+
+// remove a built world group from the scene and free its GPU buffers (shared textures stay cached)
+function disposeObject(root) {
+  scene.remove(root);
+  root.traverse((o) => {
+    if (o.geometry) o.geometry.dispose();
+    for (const m of [].concat(o.material || [])) m.dispose();
+  });
+}
 
 // =====================================================================
 // DEV TUNING PANEL — live-edit CONFIG while driving (toggle with the ` key)
@@ -3819,6 +4110,21 @@ onButton('restartBtn', () => Game.raceAgain());
 onButton('quitBtn', () => Game.quitToMenu());
 onButton('againBtn', () => Game.raceAgain());
 for (const b of document.querySelectorAll('.gfxBtn')) b.addEventListener('click', (e) => { e.currentTarget.blur(); Quality.cycle(); });
+onButton('garageBtn', () => Game.openGarage());
+onButton('garageDone', () => Game.closeGarage());
+onButton('styPrev', () => Game.stepStyle(-1));
+onButton('styNext', () => Game.stepStyle(1));
+for (const [id, key] of [['paintSw', 'color'], ['glowSw', 'glow']]) {
+  for (const c of PAINTS) {
+    const b = document.createElement('button');
+    b.style.setProperty('--c', cssColor(c)); b.dataset.c = c; b.setAttribute('aria-label', `${key === 'color' ? 'paint' : 'underglow'} ${cssColor(c)}`);
+    b.addEventListener('click', (e) => { e.currentTarget.blur(); Game.setGarage({ [key]: c }); });
+    $(id).appendChild(b);
+  }
+}
+for (const [cls, dir] of [['.trackPrev', -1], ['.trackNext', 1]]) {
+  for (const b of document.querySelectorAll(cls)) b.addEventListener('click', (e) => { e.currentTarget.blur(); Game.stepTrack(dir); });
+}
 // the first frame back from a background tab has a huge gap: don't count it against the GPU
 document.addEventListener('visibilitychange', () => { Quality.win.length = 0; Quality.winTime = 0; Quality.settle = 1000; });
 onButton('menuBtn', () => Game.quitToMenu());
@@ -3858,7 +4164,7 @@ requestAnimationFrame(frame);
 
 window.__dwBooted = true;
 // Handy for tuning from the browser console, e.g.  __dw.CONFIG.car.driftGrip = 2.5
-window.__dw = { CONFIG, Game, HUD, Quality, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles, Effects, SpeedLines, Sound, Net, AIInput };
+window.__dw = { CONFIG, Game, HUD, Quality, TRACKS, THEMES, Track, CAR_STYLES, PAINTS, THREE, SIM_DT, renderer, composer, bloomPass, camera, scene, AI_TUNE, computeSpeedProfiles, Effects, SpeedLines, Sound, Net, AIInput };
 </script>
 </body>
 </html>
