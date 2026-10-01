@@ -14,6 +14,13 @@ running) · ` (backquote) live tuning panel
 
 Enter your driver name, pick **Solo Race** (or press Enter) and race 5 AI cars over 3 laps.
 
+**Slow laptop?** Graphics are set to **AUTO** by default. The game starts from a guess based
+on your graphics chip, then steps down through HIGH → MEDIUM → LOW → POTATO whenever the frame
+rate can't keep up, and remembers the result for next time. The lower presets render at a lower
+resolution, skip anti-aliasing, compute the neon glow at lower resolution and use fewer
+particles. You can also pick a preset yourself with the **GRAPHICS** button on the title screen
+or in the pause menu; cycling back to AUTO re-runs the calibration.
+
 ## Online with friends (up to 4 players)
 
 1. One player picks **Host Online**. A 5-character room code appears in the lobby
@@ -49,7 +56,8 @@ The ones worth trying first:
 | `camera.distance`, `camera.driftSwing`, `camera.fovSpeed` | chase cam feel |
 | `ai.difficulty`, `ai.rubberBand` | opponent pace and how much they bunch up around you |
 | `race.laps` | race length |
-| `render.maxPixelRatio`, `render.bloomStrength` | performance vs sharpness, and neon glow |
+| `render.quality` | default graphics preset: `'auto'`, or `'HIGH'` / `'MEDIUM'` / `'LOW'` / `'POTATO'` |
+| `render.maxPixelRatio`, `render.bloomStrength` | sharpness on the HIGH preset, and neon glow |
 
 ## Status
 
