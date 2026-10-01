@@ -3441,11 +3441,13 @@ const Game = {
   },
   // all-time best lap per circuit, kept in this browser
   record(id) { const v = parseFloat(Store.get('best.' + id, '')); return Number.isFinite(v) ? v : Infinity; },
+  // save a lap that beats the stored record; only celebrate beating one that stood before this race
   checkRecord(lapTime) {
     const id = this.trackDef.id;
     if (!(lapTime > 0 && lapTime < this.record(id))) return;
-    Store.set('best.' + id, lapTime.toFixed(3));
-    HUD.toast(`NEW TRACK RECORD · ${fmtTime(lapTime)}`);
+    Store.set('best.' + id, String(lapTime));
+    if (Number.isFinite(this.recordAtStart) && lapTime < this.recordAtStart) HUD.toast(`NEW TRACK RECORD · ${fmtTime(lapTime)}`);
+    this.refreshTrackUI();
   },
 
   playerName() {
@@ -3551,6 +3553,7 @@ const Game = {
   // keyboard, AI cars are simulated by the host (or solo), everything else follows the network.
   setupRace(grid, laps, goAt) {
     this.clearCars();
+    this.recordAtStart = this.record(this.trackDef.id);
     computeSpeedProfiles(this.track);                       // AI follows any CONFIG.car tuning
     for (const g of grid) {
       const mine = g.id === this.myId;
