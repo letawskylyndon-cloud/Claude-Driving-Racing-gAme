@@ -48,12 +48,43 @@ Everyone needs the same version of `index.html`: a friend with an older copy is 
 runs a different version.
 
 Connections go peer-to-peer (WebRTC) and are matched through the free public PeerJS server.
-Some strict networks (school, office, public Wi-Fi) block direct connections — if joining
-times out, try another network or a phone hotspot. Solo racing never needs the server.
+Solo racing never needs the server. If friends on other networks can't join, see below.
 
 **Testing online on your own:** open `index.html` in **two browser windows** side by side
 (not two tabs — browsers pause background tabs). Host in one, join from the other. Only the
 focused window receives keyboard input, and you may want to press M in one of them.
+
+### Friends on other networks can't join? Set up a relay
+
+Two windows on one computer always connect, because nothing sits between them. Two computers
+have to reach each other through their routers and firewalls, and some networks block that:
+school, office and public Wi-Fi often do, and so do some home routers. The join screen then says
+the computers couldn't connect, and the host's lobby says a friend couldn't connect.
+
+PeerJS used to run a free backup relay for this case, but it has been shut down. The fix is a
+**relay (TURN) server**, which passes the race traffic between you. Some providers have free plans
+(as listed in November 2026; plans change, so check their sites):
+
+| Provider | Free plan | Notes |
+| --- | --- | --- |
+| [Metered](https://www.metered.ca/tools/openrelay/) | 20 GB a month | Runs on ports 80 and 443 (including TLS), so it gets through strict networks |
+| [ExpressTURN](https://www.expressturn.com/) | 1000 GB a month | Port 3478 only, which strict networks may block |
+
+Both need a free account. A race uses only a few MB per friend, so a free plan covers a lot of racing.
+
+1. Sign up and find your TURN details: a server address (starting with `turn:` or `turns:`),
+   a username and a password. If the provider shows a ready-made `iceServers` list, you can paste
+   the whole list into the SERVER box and the game picks out the rest.
+2. On the **host's** computer, press **RELAY** (on the title screen, the join screen or in the
+   lobby), paste the details and press **SAVE & TEST**. It should say **RELAY WORKS**. The host
+   can do this while waiting in the lobby; friends then join again with the same code.
+3. Usually only the host needs a relay. If a friend still can't join, they set up the same
+   details on their computer too.
+
+The details are saved in that browser only. Anyone you give them to can use your plan's data, so
+don't post them publicly. To build them into the copy of `index.html` you send your friends,
+fill in `net.relay` in `CONFIG` instead. If you just want to race right away, both computers on
+the same phone hotspot often connect without a relay.
 
 ## Tuning
 
@@ -76,6 +107,7 @@ The ones worth trying first:
 | `race.laps` | race length |
 | `render.quality` | default graphics preset: `'auto'`, or `'HIGH'` / `'MEDIUM'` / `'LOW'` / `'POTATO'` |
 | `render.maxPixelRatio`, `render.bloomStrength` | sharpness on the HIGH preset, and neon glow |
+| `net.relay` | a relay (TURN) server built into your copy of the file (normally set in game with RELAY) |
 
 ## Status
 
@@ -88,3 +120,4 @@ The ones worth trying first:
 - [x] Milestone 7 — polish
 - [x] Low-end laptop performance (graphics presets)
 - [x] More tracks and car customization
+- [x] Relay (TURN) support for networks that block direct connections
