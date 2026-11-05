@@ -81,6 +81,12 @@ Both need a free account. A race uses only a few MB per friend, so a free plan c
 3. Usually only the host needs a relay. If a friend still can't join, they set up the same
    details on their computer too.
 
+If **SAVE & TEST** says there was no answer, or that the server's address couldn't be looked up,
+the details are usually fine: the network or the computer is blocking the relay. School and work
+networks (and school laptops) often do that. Try at home or on a phone hotspot. If it says the
+username or password was turned down, copy them again; a brand-new one can take a minute to start
+working. The message ends with what the browser reported, which helps if you ask for help.
+
 The details are saved in that browser only. Anyone you give them to can use your plan's data, so
 don't post them publicly. To build them into the copy of `index.html` you send your friends,
 fill in `net.relay` in `CONFIG` instead. If you just want to race right away, both computers on
